@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.dto.SysUser;
+import com.example.demo.services.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -19,79 +20,21 @@ import reactor.core.publisher.Mono;
 import java.util.Collections;
 import java.util.Map;
 
-//import org.springframework.security.oauth2.client.annotation.OAuth2Client;
-
 @Controller
 public class MainController {
 
     @Autowired
-    private OAuth2AuthorizedClientService authorizedClientService;
-
-    @GetMapping("/test")
-    public String index1() {
-        return "Hello Spring Security";
-    }
+    MyUserDetailsService myUserDetailsService;
 
     @GetMapping("/")
-    public String index2(Model model, OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
-        model.addAttribute("userName", authentication.getName());
-        model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientName());
+    public String index() {
         return "index";
     }
 
-    @GetMapping("/userinfo")
-    public String userinfo(Model model, OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
-        Map userAttributes = Collections.emptyMap();
-        String userInfoEndpointUri = authorizedClient.getClientRegistration()
-            .getProviderDetails().getUserInfoEndpoint().getUri();
-        if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
-            userAttributes = WebClient.builder()
-                .filter(oauth2Credentials(authorizedClient))
-                .build()
-                .get()
-                .uri(userInfoEndpointUri)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-        }
-        model.addAttribute("userAttributes", userAttributes);
-        return "userinfo";
+    @GetMapping("/userinfo1")
+    public String userinfo() {
+
+        return "userinfo1";
     }
 
-    @GetMapping("/getUserInfo")
-    public ResponseEntity<SysUser> getUserInfo(Model model, OAuth2AuthenticationToken authentication) {
-        OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
-        Map userAttributes = Collections.emptyMap();
-        String userInfoEndpointUri = authorizedClient.getClientRegistration()
-            .getProviderDetails().getUserInfoEndpoint().getUri();
-        if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
-            userAttributes = WebClient.builder()
-                .filter(oauth2Credentials(authorizedClient))
-                .build()
-                .get()
-                .uri(userInfoEndpointUri)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .block();
-        }
-
-        return ResponseEntity.ok( SysUser.toUser(userAttributes) );
-    }
-
-    private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
-        return this.authorizedClientService.loadAuthorizedClient(
-            authentication.getAuthorizedClientRegistrationId(), authentication.getName());
-    }
-
-    private ExchangeFilterFunction oauth2Credentials(OAuth2AuthorizedClient authorizedClient) {
-        return ExchangeFilterFunction.ofRequestProcessor(
-            clientRequest -> {
-                ClientRequest authorizedRequest = ClientRequest.from(clientRequest)
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + authorizedClient.getAccessToken().getTokenValue())
-                    .build();
-                return Mono.just(authorizedRequest);
-            });
-    }
 }
