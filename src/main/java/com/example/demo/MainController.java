@@ -1,7 +1,9 @@
 package com.example.demo;
 
+import com.example.demo.dto.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -25,8 +27,13 @@ public class MainController {
     @Autowired
     private OAuth2AuthorizedClientService authorizedClientService;
 
+    @GetMapping("/test")
+    public String index1() {
+        return "Hello Spring Security";
+    }
+
     @GetMapping("/")
-    public String index(Model model, OAuth2AuthenticationToken authentication) {
+    public String index2(Model model, OAuth2AuthenticationToken authentication) {
         OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
         model.addAttribute("userName", authentication.getName());
         model.addAttribute("clientName", authorizedClient.getClientRegistration().getClientName());
@@ -51,6 +58,26 @@ public class MainController {
         }
         model.addAttribute("userAttributes", userAttributes);
         return "userinfo";
+    }
+
+    @GetMapping("/getUserInfo")
+    public ResponseEntity<SysUser> getUserInfo(Model model, OAuth2AuthenticationToken authentication) {
+        OAuth2AuthorizedClient authorizedClient = this.getAuthorizedClient(authentication);
+        Map userAttributes = Collections.emptyMap();
+        String userInfoEndpointUri = authorizedClient.getClientRegistration()
+            .getProviderDetails().getUserInfoEndpoint().getUri();
+        if (!StringUtils.isEmpty(userInfoEndpointUri)) {	// userInfoEndpointUri is optional for OIDC Clients
+            userAttributes = WebClient.builder()
+                .filter(oauth2Credentials(authorizedClient))
+                .build()
+                .get()
+                .uri(userInfoEndpointUri)
+                .retrieve()
+                .bodyToMono(Map.class)
+                .block();
+        }
+
+        return ResponseEntity.ok( SysUser.toUser(userAttributes) );
     }
 
     private OAuth2AuthorizedClient getAuthorizedClient(OAuth2AuthenticationToken authentication) {
