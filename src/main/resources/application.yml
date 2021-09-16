@@ -14,3 +14,10 @@ spring:
     user:
       name: admin
       password: admax
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: localhost8888
+  resource: localhost8888
+  ssl-required: none
+  public-client: true
