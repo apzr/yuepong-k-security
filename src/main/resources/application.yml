@@ -17,7 +17,10 @@ spring:
 
 keycloak:
   auth-server-url: http://localhost:8080/auth
-  realm: localhost8888
+  realm: myrealm
   resource: localhost8888
   ssl-required: none
   public-client: true
+  security-constraints[0].authRoles[0]: ROLE_VIEWER
+  security-constraints[0].securityCollections[0].patterns[0]: /*
+  principal-attribute: preferred_username

@@ -1,15 +1,15 @@
 package com.example.demo;
 
-import com.example.demo.services.MyUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.annotation.security.RolesAllowed;
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
 public class MainController {
-
-    @Autowired
-    MyUserDetailsService myUserDetailsService;
 
     @GetMapping("/")
     public String index() {
@@ -17,14 +17,18 @@ public class MainController {
     }
 
     @GetMapping("/userinfo1")
-    public String userinfo1() {
-
+    public String userinfo1(Principal principal) {
+   	    Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("username", principal.getName());
+    	System.out.println("Debug: the username is " + principal.getName());
         return "userinfo1";
     }
 
     @GetMapping("/userinfo")
-    public String userinfo() {
-
+    public String userinfo(Principal principal) {
+   	    Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("username", principal.getName());
+    	System.out.println("Debug: the username is " + principal.getName());
         return "userinfo";
     }
 }
