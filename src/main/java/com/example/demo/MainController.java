@@ -32,9 +32,14 @@ public class MainController {
     }
 
     @GetMapping("/userinfo1")
-    public String userinfo() {
+    public String userinfo1() {
 
         return "userinfo1";
     }
 
+    @GetMapping("/userinfo")
+    public String userinfo() {
+
+        return "userinfo";
+    }
 }
