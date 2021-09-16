@@ -6,12 +6,15 @@
 </head>
 <body>
 <div th:replace="index::logout"></div>
-<h1>OAuth 2.0 User Info</h1>
+<h1>User Info</h1>
 <div>
     <span style="font-weight:bold">User Attributes:</span>
     <ul>
-        <li th:each="userAttribute : ${userAttributes}">
-            <span style="font-weight:bold" th:text="${userAttribute.key}"></span>: <span th:text="${userAttribute.value}"></span>
+        <li>
+            <span style="font-weight:bold" th:text="userName"></span>: <span th:text="${userName}"></span>
+        </li>
+         <li>
+            <span style="font-weight:bold" th:text="Token"></span>: <span th:text="${credentials}"></span>
         </li>
     </ul>
 </div>

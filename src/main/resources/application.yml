@@ -24,3 +24,31 @@ keycloak:
   security-constraints[0].authRoles[0]: ROLE_VIEWER
   security-constraints[0].securityCollections[0].patterns[0]: /*
   principal-attribute: preferred_username
+
+security:
+  enabled: true
+  oauth2:
+    client:
+      registration:
+        keycloak:
+          client-id: localhost8888
+          client-secret: keycloak
+          clientName: keyCloak
+          authorization-grant-type: authorization_code
+          redirectUriTemplate: '{baseUrl}/login/oauth2/code/{registrationId}'
+          scope:
+            - openid
+            - profile
+            - email
+
+      provider:
+        keycloak:
+          authorization-uri: http://localhost:8080/auth/realms/myrealm/protocol/openid-connect/auth
+          token-uri: http://localhost:8080/auth/realms/myrealm/protocol/openid-connect/token
+          user-info-uri: http://localhost:8080/auth/realms/myrealm/protocol/openid-connect/userinfo
+          jwk-set-uri: http://localhost:8080/auth/realms/myrealm/protocol/openid-connect/certs
+          user-name-attribute: preferred_username
+
+management:
+  security:
+    enabled: false

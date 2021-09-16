@@ -11,7 +11,7 @@
     </div>
     <div style="float:none">&nbsp;</div>
     <div style="float:right">
-        <form action="#" th:action="@{/logout}" method="post">
+        <form action="#" th:action="@{/sso/logout}" method="post">
             <input type="submit" value="Logout" />
         </form>
     </div>
@@ -19,7 +19,6 @@
 <h1>Login with Spring Security</h1>
 <div>
     You are successfully logged in <span style="font-weight:bold" th:text="${userName}"></span>
-    via the Client <span style="font-weight:bold" th:text="${clientName}"></span>
 </div>
 <div>&nbsp;</div>
 <div>
