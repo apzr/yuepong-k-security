@@ -2,6 +2,8 @@ package com.example.demo.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * SysUserRole
  * <p>
@@ -12,13 +14,10 @@ import lombok.Data;
  **/
 @Data
 public class SysUserRole {
-    private Integer userId;
-    private Integer roleId;
+    private SysUser user;
+    private List<SysRole> roles;
 
     public SysUserRole(){}
 
-    public SysUserRole(Integer uid, Integer rid){
-        this.userId = uid;
-        this.roleId = rid;
-    }
+
 }

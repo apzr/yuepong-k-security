@@ -1,8 +1,14 @@
 package com.example.demo;
 
+import com.example.demo.dto.SysRole;
+import com.example.demo.dto.SysUser;
+import com.example.demo.dto.SysUserRole;
+import com.example.demo.dto.UserOrigin;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -27,13 +33,17 @@ public class MainController {
         return "index";
     }
 
-    @RolesAllowed("ROLE_VIEWER")
-    @GetMapping("/userinfo")
+    @GetMapping("/html/user_info")
     public String userinfo(Model model, KeycloakAuthenticationToken authentication) {//KeycloakAuthenticationToken
         model.addAttribute("userName", authentication.getName());
         model.addAttribute("credentials", authentication.getAccount().getKeycloakSecurityContext().getTokenString());
 
         return "userinfo";
+    }
+
+    @GetMapping("/api/user_info")
+    public ResponseEntity<AccessToken> apiUserinfo(KeycloakAuthenticationToken authentication) {
+        return ResponseEntity.ok( authentication.getAccount().getKeycloakSecurityContext().getToken() );
     }
 
 }
