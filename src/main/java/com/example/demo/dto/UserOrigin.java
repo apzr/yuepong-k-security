@@ -3,8 +3,6 @@ package com.example.demo.dto;
 import lombok.Data;
 import org.keycloak.representations.AccessToken;
 
-import java.util.Set;
-
 /**
  * UserOrigin
  * <p>
@@ -15,6 +13,6 @@ import java.util.Set;
  **/
 @Data
 public class UserOrigin {
-    private String name;
+    private String ame;
     private AccessToken token;
 }

@@ -30,6 +30,7 @@ import javax.annotation.security.RolesAllowed;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class MainController {
@@ -40,9 +41,12 @@ public class MainController {
     }
 
     @GetMapping("/html/user_info")
-    public String userinfo(Model model, KeycloakAuthenticationToken authentication) {//KeycloakAuthenticationToken
-        model.addAttribute("userName", authentication.getName());
-        model.addAttribute("credentials", authentication.getAccount().getKeycloakSecurityContext().getTokenString());
+    public String user_info(Model model, KeycloakAuthenticationToken authentication) {//KeycloakAuthenticationToken
+        if(Objects.nonNull(authentication)){
+            model.addAttribute("userName", authentication.getName());
+            model.addAttribute("credentials", authentication.getAccount().getKeycloakSecurityContext().getTokenString());
+            model.addAttribute("","");
+        }
 
         return "userinfo";
     }
