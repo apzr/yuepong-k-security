@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserCredentials;
 import com.example.demo.dto.UserDTO;
 import org.apache.http.HttpResponse;
@@ -68,6 +69,16 @@ public interface KeyCloakAdminService_V1 {
      * @date 2021/9/26 11:19
      */
     int createUserInKeyCloak(UserDTO userDTO) ;
+
+    /**
+     * 创建角色
+     *
+     * @param roleDTO
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    int createRoleInKeyCloak(RoleDTO roleDTO) ;
 
 	/**
      * 登出

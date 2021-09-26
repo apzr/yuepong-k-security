@@ -1,5 +1,6 @@
 package com.example.demo.services.impl;
 
+import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserCredentials;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.KeyCloakAdminService_V0;
@@ -15,6 +16,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleResource;
+import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -137,6 +140,26 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	}
 
+	public int createRoleInKeyCloak(RoleDTO roleDTO) {
+		int statusId = 0;
+		try {
+			RolesResource rolesResource = getKeycloakRoleResource();
+			RoleRepresentation role = new RoleRepresentation();
+			role.setName(roleDTO.getName());
+			role.setDescription(roleDTO.getDescription());
+			role.setClientRole(true);
+
+			// Create role
+			rolesResource.create(role);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return statusId;
+
+	}
+
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
 		UsersResource userRessource = getKeycloakUserResource();
@@ -164,9 +187,20 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 				.build();
 
 		RealmResource realmResource = kc.realm(REALM);
-		UsersResource userRessource = realmResource.users();
+		UsersResource userResource = realmResource.users();
 
-		return userRessource;
+		return userResource;
+	}
+
+	private RolesResource getKeycloakRoleResource() {
+		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("admin").password("admin")
+				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+				.build();
+
+		RealmResource realmResource = kc.realm(REALM);
+		RolesResource roleResource = realmResource.roles();
+
+		return roleResource;
 	}
 
 	private RealmResource getRealmResource() {

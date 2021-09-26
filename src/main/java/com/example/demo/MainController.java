@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.KeyCloakAdminService_V0;
 import com.example.demo.services.KeyCloakAdminService_V1;
@@ -19,10 +20,10 @@ import java.util.Objects;
 public class MainController {
 
     @Autowired
-    KeyCloakAdminService_V0 KeyCloakAdminService_V0;
+    KeyCloakAdminService_V0 keyCloakAdminService_V0;
 
     @Autowired
-    KeyCloakAdminService_V1 KeyCloakAdminService_V1;
+    KeyCloakAdminService_V1 keyCloakAdminService_V1;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -52,11 +53,24 @@ public class MainController {
 	@PostMapping(value = "/api/user/create")
 	public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
 		try {
-			KeyCloakAdminService_V1.createUserInKeyCloak(userDTO);
+			keyCloakAdminService_V1.createUserInKeyCloak(userDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	@PostMapping(value = "/api/role/create")
+	public ResponseEntity<?> createUser(@RequestBody RoleDTO roleDTO) {
+		try {
+			keyCloakAdminService_V1.createRoleInKeyCloak(roleDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
+
+
 }
