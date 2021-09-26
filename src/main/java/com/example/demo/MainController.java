@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -84,5 +85,25 @@ public class MainController {
 		}
 	}
 
+	@GetMapping(value = "/api/user/list")
+	public ResponseEntity<?> getUsersInKeyCloak() {
+		try {
+			List<UserDTO> users = keyCloakAdminService_V1.getUsersInKeyCloak();
+			return ResponseEntity.ok(users);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
 
+	@GetMapping(value = "/api/role/list")
+	public ResponseEntity<?> getRolesInKeyCloak() {
+		try {
+			List<RoleDTO>  roles = keyCloakAdminService_V1.getRolesInKeyCloak();
+			return ResponseEntity.ok(roles);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
 }

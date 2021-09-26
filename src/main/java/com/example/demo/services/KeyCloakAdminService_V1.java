@@ -62,6 +62,15 @@ public interface KeyCloakAdminService_V1 {
     String getByRefreshToken(String refreshToken) ;
 
     /**
+     * 用户列表
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+     List<UserDTO> getUsersInKeyCloak() ;
+
+    /**
      * 创建用户
      *
      * @param userDTO
@@ -70,6 +79,15 @@ public interface KeyCloakAdminService_V1 {
      * @date 2021/9/26 11:19
      */
     int createUserInKeyCloak(UserDTO userDTO) ;
+
+    /**
+     * 角色列表
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    List<RoleDTO> getRolesInKeyCloak() ;
 
     /**
      * 创建角色
@@ -90,6 +108,7 @@ public interface KeyCloakAdminService_V1 {
      * @date 2021/9/26 11:19
      */
     int createMappingInKeyCloak(MappingDTO mappingDTO) ;
+
 	/**
      * 登出
      *

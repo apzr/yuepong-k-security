@@ -88,6 +88,13 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return responseToken;
 	}
 
+	@Override
+	public List<UserDTO> getUsersInKeyCloak() {
+		UsersResource usersResource = getKeycloakUserResource();
+		List<UserRepresentation> userRepresentations = usersResource.list();
+		return userRepresentations.stream().map(userRepresentation -> convertUser(userRepresentation)).collect(Collectors.toList());
+	}
+
 	public int createUserInKeyCloak(UserDTO userDTO) {
 		int statusId = 0;
 		try {
@@ -140,6 +147,13 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 		return statusId;
 
+	}
+
+	@Override
+	public List<RoleDTO> getRolesInKeyCloak() {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		List<RoleRepresentation> roleRepresentations = rolesResource.list();
+		return roleRepresentations.stream().map(roleRepresentation -> convertRole(roleRepresentation)).collect(Collectors.toList());
 	}
 
 	public int createRoleInKeyCloak(RoleDTO roleDTO) {
@@ -209,6 +223,23 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		// Set password credential
 		userResource.get(userId).resetPassword(passwordCred);
 
+	}
+
+	private UserDTO convertUser(UserRepresentation userRepresentation) {
+		UserDTO u = new UserDTO();
+		u.setUserName( userRepresentation.getUsername() );
+		u.setEmailAddress(userRepresentation.getEmail() );
+		u.setFirstName(userRepresentation.getFirstName());
+		u.setLastName(userRepresentation.getLastName());
+		return u;
+	}
+
+	private RoleDTO convertRole(RoleRepresentation roleRepresentation) {
+		RoleDTO r = new RoleDTO();
+		r.setName( roleRepresentation.getName() );
+		r.setDescription( roleRepresentation.getDescription() );
+		r.setClientRole( roleRepresentation.getClientRole() );
+		return r;
 	}
 
 	private UsersResource getKeycloakUserResource() {
