@@ -227,6 +227,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	private UserDTO convertUser(UserRepresentation userRepresentation) {
 		UserDTO u = new UserDTO();
+		u.setId(userRepresentation.getId());
 		u.setUserName( userRepresentation.getUsername() );
 		u.setEmailAddress(userRepresentation.getEmail() );
 		u.setFirstName(userRepresentation.getFirstName());
