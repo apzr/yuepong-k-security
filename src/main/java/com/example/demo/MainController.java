@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.KeyCloakAdminService_V0;
@@ -65,6 +66,17 @@ public class MainController {
 	public ResponseEntity<?> createUser(@RequestBody RoleDTO roleDTO) {
 		try {
 			keyCloakAdminService_V1.createRoleInKeyCloak(roleDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PostMapping(value = "/api/mapping/create")
+	public ResponseEntity<?> createMappingInKeyCloak(@RequestBody MappingDTO mappingDTO) {
+		try {
+			keyCloakAdminService_V1.createMappingInKeyCloak(mappingDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			ex.printStackTrace();

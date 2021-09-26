@@ -1,5 +1,6 @@
 package com.example.demo.services.impl;
 
+import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserCredentials;
 import com.example.demo.dto.UserDTO;
@@ -15,13 +16,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.RoleResource;
-import org.keycloak.admin.client.resource.RolesResource;
-import org.keycloak.admin.client.resource.UsersResource;
+import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.MappingsRepresentation;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * ImplBak
@@ -90,7 +91,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	public int createUserInKeyCloak(UserDTO userDTO) {
 		int statusId = 0;
 		try {
-			UsersResource userRessource = getKeycloakUserResource();
+			UsersResource userResource = getKeycloakUserResource();
 			UserRepresentation user = new UserRepresentation();
 			user.setUsername(userDTO.getUserName());
 			user.setEmail(userDTO.getEmailAddress());
@@ -99,7 +100,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			user.setEnabled(true);
 
 			// Create user
-			Response result = userRessource.create(user);
+			Response result = userResource.create(user);
 			System.out.println("Keycloak create user response code>>>>" + result.getStatus());
 
 			statusId = result.getStatus();
@@ -116,7 +117,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 				passwordCred.setValue(userDTO.getPassword());
 
 				// Set password credential
-				userRessource.get(userId).resetPassword(passwordCred);
+				userResource.get(userId).resetPassword(passwordCred);
 
 				// set role
 				RealmResource realmResource = getRealmResource();
@@ -133,6 +134,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			}
 
 		} catch (Exception e) {
+			statusId = -1;
 			e.printStackTrace();
 		}
 
@@ -153,6 +155,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			rolesResource.create(role);
 
 		} catch (Exception e) {
+			statusId = -1;
 			e.printStackTrace();
 		}
 
@@ -160,10 +163,37 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	}
 
+	public int createMappingInKeyCloak(MappingDTO mappingDTO) {
+		int statusId = 0;
+
+		try {
+			RealmResource realmResource = getRealmResource();
+			String clientUUID = realmResource.clients().findByClientId("localhost8888").get(0).getClientId();
+
+			RolesResource rolesResource = getKeycloakRoleResource();
+			List<RoleRepresentation> rolesToAdd = rolesResource.list().stream()
+					.filter(role -> mappingDTO.getRoleName().equals(role.getName())).collect(Collectors.toList());
+
+			UsersResource usersResource = getKeycloakUserResource();
+			List<UserRepresentation> users = usersResource.list().stream().filter(user -> mappingDTO.getUserId().equals(user.getId())).collect(Collectors.toList());
+
+			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, mappingDTO.getUserId());
+			roleMappingResource.realmLevel().add(rolesToAdd);
+			//usersResource.get("").roles().clientLevel(clientUUID).add(rolesToAdd);
+
+		} catch (Exception e) {
+			statusId = -1;
+			e.printStackTrace();
+		}
+
+		return statusId;
+	}
+
+
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
-		UsersResource userRessource = getKeycloakUserResource();
-		userRessource.get(userId).logout();
+		UsersResource userResource = getKeycloakUserResource();
+		userResource.get(userId).logout();
 	}
 
 	// Reset passowrd
@@ -201,6 +231,11 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		RolesResource roleResource = realmResource.roles();
 
 		return roleResource;
+	}
+
+
+	private RoleMappingResource getKeycloakRoleMappingResource(UsersResource usersResource, String userId) {
+		return usersResource.get(userId).roles();
 	}
 
 	private RealmResource getRealmResource() {
