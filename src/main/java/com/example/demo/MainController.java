@@ -1,39 +1,28 @@
 package com.example.demo;
 
-import com.example.demo.dto.SysRole;
-import com.example.demo.dto.SysUser;
-import com.example.demo.dto.SysUserRole;
-import com.example.demo.dto.UserOrigin;
+import com.example.demo.dto.UserDTO;
+import com.example.demo.services.KeyCloakAdminService_V0;
+import com.example.demo.services.KeyCloakAdminService_V1;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.idm.ClientRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
-import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Controller
 public class MainController {
+
+    @Autowired
+    KeyCloakAdminService_V0 KeyCloakAdminService_V0;
+
+    @Autowired
+    KeyCloakAdminService_V1 KeyCloakAdminService_V1;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -56,8 +45,18 @@ public class MainController {
         return ResponseEntity.ok( authentication.getAccount().getKeycloakSecurityContext().getToken() );
     }
 
-    @RequestMapping("/api/test")
-	public void test() {
-
+	/*
+	 * Creating user in keycloak passing UserDTO contains username, emailid,
+	 * password, firtname, lastname
+	 */
+	@PostMapping(value = "/api/user/create")
+	public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+		try {
+			KeyCloakAdminService_V1.createUserInKeyCloak(userDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 	}
 }

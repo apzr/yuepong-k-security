@@ -15,6 +15,18 @@ spring:
       name: admin
       password: admax
 
+kc:
+  master:
+    realm:
+      user:
+        name: admin
+        password: admin
+      client:
+        id: localhost8888
+  target:
+    realm: myrealm
+
+
 keycloak:
   auth-server-url: http://127.0.0.1:8080/auth
   realm: myrealm
