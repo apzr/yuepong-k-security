@@ -8,6 +8,8 @@ import com.example.demo.services.KeyCloakAdminService_V1;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+@CrossOrigin
 @Controller
 public class MainController {
 
@@ -89,7 +92,7 @@ public class MainController {
 	public ResponseEntity<?> getUsersInKeyCloak() {
 		try {
 			List<UserDTO> users = keyCloakAdminService_V1.getUsersInKeyCloak();
-			return ResponseEntity.ok(users);
+			return  ResponseEntity.ok(users);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -106,4 +109,6 @@ public class MainController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
+
+
 }

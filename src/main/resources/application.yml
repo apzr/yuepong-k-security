@@ -64,3 +64,13 @@ security:
 management:
   security:
     enabled: false
+
+
+# 除了几个必填的配置项外，另外需要注意的几个配置项如下
+# credentials.secret：上文添加客户端后Credentials Tab内对应的内容
+# bearer-only：设置为true，表示此应用的Keycloak访问类型是bearer-only
+# cors：设置为true表示允许跨域访问
+# security-constraints：主要是针对不同的路径定义角色以达到权限管理的目的
+#   /customer：只允许拥有ROLE_CUSTOMER角色的用户才能访问
+#   /admin：只允许拥有ROLE_ADMIN角色的用户才能访问
+#   未配置的路径表示公开访问
