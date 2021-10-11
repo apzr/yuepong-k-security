@@ -7,6 +7,7 @@ import com.example.demo.services.KeyCloakAdminService_V0;
 import com.example.demo.services.KeyCloakAdminService_V1;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
@@ -110,5 +111,14 @@ public class MainController {
 		}
 	}
 
-
+	@GetMapping(value = "/api/mapping/list")
+	public ResponseEntity<?> getMappingsInKeyCloak(@RequestBody UserDTO userDTO) {
+		try {
+			List<MappingDTO> mappings = keyCloakAdminService_V1.getMappingsByUser(userDTO.getId());
+			return ResponseEntity.ok(mappings);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+	}
 }

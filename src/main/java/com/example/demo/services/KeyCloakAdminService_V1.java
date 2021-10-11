@@ -109,6 +109,15 @@ public interface KeyCloakAdminService_V1 {
      */
     int createMappingInKeyCloak(MappingDTO mappingDTO) ;
 
+    /**
+     * 获取映射列表
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    List<MappingDTO> getMappingsByUser(String uid) ;
+
 	/**
      * 登出
      *

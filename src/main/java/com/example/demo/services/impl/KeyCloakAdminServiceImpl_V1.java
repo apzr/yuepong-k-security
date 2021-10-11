@@ -203,6 +203,15 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return statusId;
 	}
 
+	@Override
+	public List<MappingDTO> getMappingsByUser(String uid) {
+
+		UsersResource usersResource = getKeycloakUserResource();
+		RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, uid);
+		List<RoleRepresentation> aa = roleMappingResource.realmLevel().listAll();
+
+		return aa.stream().map(roleRepresentation -> toMappingDto(roleRepresentation, uid)).collect(Collectors.toList());
+	}
 
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
@@ -293,5 +302,14 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			result.append(line);
 		}
 		return result.toString();
+	}
+
+	private MappingDTO toMappingDto(RoleRepresentation roleRepresentation, String uid) {
+		MappingDTO m = new MappingDTO();
+		m.setUserId(uid);
+		m.setRoleId(roleRepresentation.getId());
+		m.setRoleName(roleRepresentation.getName());
+
+		return m;
 	}
 }

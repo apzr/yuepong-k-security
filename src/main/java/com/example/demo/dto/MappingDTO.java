@@ -14,6 +14,7 @@ import lombok.Data;
 public class MappingDTO {
 
     private String userId;
+	private String roleId;
 	private String roleName;
 
 }
