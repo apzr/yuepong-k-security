@@ -71,14 +71,42 @@ public interface KeyCloakAdminService_V1 {
      List<UserDTO> getUsersInKeyCloak() ;
 
     /**
+     * 用户列表
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+     UserDTO getUserInKeyCloak(String uid) ;
+    /**
      * 创建用户
+     *
+     * @param userDTO
+     * @return id
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    String createUserInKeyCloak(UserDTO userDTO) ;
+
+    /**
+     * 删除用户
      *
      * @param userDTO
      * @return int
      * @author apr
      * @date 2021/9/26 11:19
      */
-    int createUserInKeyCloak(UserDTO userDTO) ;
+    String deleteUserInKeyCloak(String id) ;
+
+    /**
+     * 修改用户
+     *
+     * @param userDTO
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    void updateUserInKeyCloak(UserDTO userDTO) ;
 
     /**
      * 角色列表
@@ -100,6 +128,24 @@ public interface KeyCloakAdminService_V1 {
     int createRoleInKeyCloak(RoleDTO roleDTO) ;
 
     /**
+     * 删除角色
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    void deleteRolesInKeyCloak(RoleDTO roleDTO) ;
+
+    /**
+     * 编辑角色
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    void updateRolesInKeyCloak(RoleDTO roleDTO) ;
+
+    /**
      * 创建用户角色映射
      *
      * @param mappingDTO
@@ -118,6 +164,14 @@ public interface KeyCloakAdminService_V1 {
      */
     List<MappingDTO> getMappingsByUser(String uid) ;
 
+    /**
+     * 删除角色用户映射
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+    void deleteMappingsByUser(MappingDTO mapping) ;
 	/**
      * 登出
      *

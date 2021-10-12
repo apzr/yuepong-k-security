@@ -3,6 +3,8 @@ package com.example.demo.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 @Data
 public class UserDTO implements Serializable {
@@ -20,6 +22,8 @@ public class UserDTO implements Serializable {
 	private String lastName;
 
 	private String password;
+
+	private Map<String, List<String>> attrs;
 
 	public UserDTO() {
 	}

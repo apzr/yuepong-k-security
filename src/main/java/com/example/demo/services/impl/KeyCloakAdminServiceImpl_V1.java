@@ -13,6 +13,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -25,12 +26,11 @@ import org.keycloak.representations.idm.MappingsRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -95,8 +95,19 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return userRepresentations.stream().map(userRepresentation -> convertUser(userRepresentation)).collect(Collectors.toList());
 	}
 
-	public int createUserInKeyCloak(UserDTO userDTO) {
-		int statusId = 0;
+	@Override
+	public UserDTO getUserInKeyCloak(String uid) {
+		UsersResource usersResource = getKeycloakUserResource();
+		UserResource userResource = usersResource.get(uid);
+		UserDTO user = convertUser(userResource.toRepresentation());
+		Map<String, List<String>> attrs = userResource.toRepresentation().getAttributes();
+		user.setAttrs(attrs);
+
+		return user;
+	}
+
+	public String createUserInKeyCloak(UserDTO userDTO) {
+		String uid = "0";
 		try {
 			UsersResource userResource = getKeycloakUserResource();
 			UserRepresentation user = new UserRepresentation();
@@ -110,12 +121,12 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			Response result = userResource.create(user);
 			System.out.println("Keycloak create user response code>>>>" + result.getStatus());
 
-			statusId = result.getStatus();
-			if (statusId == 201) {
+			int statusId = result.getStatus();
+			if (statusId == Response.Status.OK.getStatusCode()) {
 
-				String userId = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+				System.out.println("Keycloak create user getLocation>>>>" + result.getLocation().getPath());
 
-				System.out.println("User created with userId:" + userId);
+				uid = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 
 				// Define password credential
 				CredentialRepresentation passwordCred = new CredentialRepresentation();
@@ -124,29 +135,64 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 				passwordCred.setValue(userDTO.getPassword());
 
 				// Set password credential
-				userResource.get(userId).resetPassword(passwordCred);
+				userResource.get(uid).resetPassword(passwordCred);
 
-				// set role
-				RealmResource realmResource = getRealmResource();
-				RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
-				realmResource.users().get(userId).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
+				//默认角色
+				try{
+					RealmResource realmResource = getRealmResource();
+					RoleRepresentation savedRoleRepresentation = realmResource.roles().get("user").toRepresentation();
+					realmResource.users().get(uid).roles().realmLevel().add(Arrays.asList(savedRoleRepresentation));
+				}catch(NotFoundException e){
+					System.err.println("javax.ws.rs.NotFoundException: HTTP 404 Not Found");
+				}
 
 				System.out.println("Username==" + userDTO.getUserName() + " created in keycloak successfully");
 			}
 
-			else if (statusId == 409) {
+			else if (statusId == Response.Status.CONFLICT.getStatusCode()) {
 				System.out.println("Username==" + userDTO.getUserName() + " already present in keycloak");
 			} else {
 				System.out.println("Username==" + userDTO.getUserName() + " could not be created in keycloak");
 			}
 
 		} catch (Exception e) {
-			statusId = -1;
+			uid = "-1";
 			e.printStackTrace();
 		}
 
-		return statusId;
+		return uid;
+	}
 
+	@Override
+	public void updateUserInKeyCloak(UserDTO userDTO) {
+		try {
+			UsersResource userResource = getKeycloakUserResource();
+			UserResource userToEdit = userResource.get(userDTO.getId());
+
+			UserRepresentation user = copyProperty(userDTO, userToEdit.toRepresentation());
+
+			// 修改信息
+			userToEdit.update(user);
+
+			//修改密码
+			if(Objects.nonNull(userDTO.getPassword())){
+				CredentialRepresentation passwordCred = new CredentialRepresentation();
+				passwordCred.setTemporary(false);
+				passwordCred.setType(CredentialRepresentation.PASSWORD);
+				passwordCred.setValue(userDTO.getPassword());
+				userToEdit.resetPassword(passwordCred);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	public String deleteUserInKeyCloak(String id) {
+		UsersResource usersResource = getKeycloakUserResource();
+		Response result = usersResource.delete(id);
+		return result.getStatus()+"";
 	}
 
 	@Override
@@ -175,6 +221,18 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 		return statusId;
 
+	}
+
+	@Override
+	public void deleteRolesInKeyCloak(RoleDTO roleDTO) {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		rolesResource.deleteRole(roleDTO.getName());
+	}
+
+	@Override
+	public void updateRolesInKeyCloak(RoleDTO roleDTO) {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		//TODO: 更新角色
 	}
 
 	public int createMappingInKeyCloak(MappingDTO mappingDTO) {
@@ -213,6 +271,14 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return aa.stream().map(roleRepresentation -> toMappingDto(roleRepresentation, uid)).collect(Collectors.toList());
 	}
 
+	@Override
+	public void deleteMappingsByUser(MappingDTO mapping) {
+		UsersResource usersResource = getKeycloakUserResource();
+		//TODO: 删除
+
+		//List<RoleRepresentation> aa = roleMappingResource.realmLevel().remove();
+	}
+
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
 		UsersResource userResource = getKeycloakUserResource();
@@ -232,6 +298,30 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		// Set password credential
 		userResource.get(userId).resetPassword(passwordCred);
 
+	}
+
+	private UserRepresentation copyProperty(UserDTO userDTO, UserRepresentation userToEdit) {
+		//基本信息
+		if(Objects.nonNull(userDTO.getUserName())){
+			userToEdit.setUsername(userDTO.getUserName());
+		}
+		if(Objects.nonNull(userDTO.getEmailAddress())){
+			userToEdit.setEmail(userDTO.getEmailAddress());
+		}
+		if(Objects.nonNull(userDTO.getFirstName())){
+			userToEdit.setFirstName(userDTO.getFirstName());
+		}
+		if(Objects.nonNull(userDTO.getLastName())){
+			userToEdit.setLastName(userDTO.getLastName());
+		}
+
+		//其他属性
+		if(Objects.nonNull(userDTO.getAttrs())){
+			//TODO:这里是覆盖, 要做成检测相同的覆盖 其余的保留, 即为合并
+			userToEdit.setAttributes(userDTO.getAttrs());
+		}
+
+		return userToEdit;
 	}
 
 	private UserDTO convertUser(UserRepresentation userRepresentation) {
@@ -273,7 +363,6 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 		return roleResource;
 	}
-
 
 	private RoleMappingResource getKeycloakRoleMappingResource(UsersResource usersResource, String userId) {
 		return usersResource.get(userId).roles();

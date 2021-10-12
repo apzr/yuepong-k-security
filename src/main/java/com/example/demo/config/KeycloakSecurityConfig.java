@@ -43,7 +43,7 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
 //            .anyRequest()
 //            .permitAll();
         http.authorizeRequests().anyRequest().permitAll();
-//        http.csrf().disable();
+        http.csrf().disable();//Invalid CSRF token found for http://127.0.0.1:8888/api/user/create
 //        http.cors().disable();
     }
 
