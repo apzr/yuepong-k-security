@@ -3,8 +3,7 @@ package com.example.demo;
 import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
-import com.example.demo.services.KeyCloakAdminService_V0;
-import com.example.demo.services.KeyCloakAdminService_V1;
+import com.example.demo.services.AdminService;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +21,7 @@ import java.util.Objects;
 public class MainController {
 
     @Autowired
-    KeyCloakAdminService_V0 keyCloakAdminService_V0;
-
-    @Autowired
-    KeyCloakAdminService_V1 keyCloakAdminService_V1;
+	AdminService adminService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -78,17 +74,16 @@ public class MainController {
 	 * @date 2021/10/12 9:42
 	 */
 	@PostMapping(value = "/api/user/create")
-	public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
 		try {
-			return ResponseEntity.ok( keyCloakAdminService_V1.createUserInKeyCloak(userDTO) );
+			return ResponseEntity.ok( adminService.createUser(userDTO) );
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
 	/*
-	 * 创建用户
+	 * 修改用户
 	 *
 	 * @param userDTO
 	 * @return org.springframework.http.ResponseEntity<?>
@@ -96,55 +91,52 @@ public class MainController {
 	 * @date 2021/10/12 9:42
 	 */
 	@PostMapping(value = "/api/user/edit")
-	public ResponseEntity<?> editUser(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> edit(@RequestBody UserDTO userDTO) {
 		try {
-			keyCloakAdminService_V1.updateUserInKeyCloak(userDTO);
+			adminService.updateUser(userDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
 	/**
-	 * 查询用户详情
+	 * 删除用户
 	 *
-	 * @param id
+	 * @param uid
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/api/user/{id}")
-	public ResponseEntity<?> getUserInKeyCloak(@PathVariable String id) {
+	@DeleteMapping(value = "/api/user/{uid}")
+	public ResponseEntity<?> deleteUser(@PathVariable String uid) {
 		try {
-			UserDTO user = keyCloakAdminService_V1.getUserInKeyCloak(id);
-			return  ResponseEntity.ok(user);
+			return ResponseEntity.ok( adminService.deleteUser(uid) );
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		}
-	}
-
-		/**
-	 * 查询用户详情
-	 *
-	 * @param id
-	 * @return org.springframework.http.ResponseEntity<?>
-	 * @author apr
-	 * @date 2021/10/12 9:43
-	 */
-	@DeleteMapping(value = "/api/user/{id}")
-	public ResponseEntity<?> deleteUserInKeyCloak(@PathVariable String id) {
-		try {
-			return ResponseEntity.ok( keyCloakAdminService_V1.deleteUserInKeyCloak(id) );
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
 	/**
-	 * 查询所有用户
+	 * 查询用户
+	 *
+	 * @param uid
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 9:43
+	 */
+	@GetMapping(value = "/api/user/{uid}")
+	public ResponseEntity<?> getUser(@PathVariable String uid) {
+		try {
+			UserDTO user = adminService.getUser(uid);
+			return ResponseEntity.ok(user);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 用户列表
 	 *
 	 * @param
 	 * @return org.springframework.http.ResponseEntity<?>
@@ -152,13 +144,12 @@ public class MainController {
 	 * @date 2021/10/12 9:43
 	 */
 	@GetMapping(value = "/api/user/list")
-	public ResponseEntity<?> getUsersInKeyCloak() {
+	public ResponseEntity<?> listUsers() {
 		try {
-			List<UserDTO> users = keyCloakAdminService_V1.getUsersInKeyCloak();
-			return  ResponseEntity.ok(users);
+			List<UserDTO> users = adminService.listUsers();
+			return ResponseEntity.ok(users);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
@@ -175,18 +166,71 @@ public class MainController {
 	 * @date 2021/10/12 9:42
 	 */
 	@PostMapping(value = "/api/role/create")
-	public ResponseEntity<?> createUser(@RequestBody RoleDTO roleDTO) {
+	public ResponseEntity<?> create(@RequestBody RoleDTO roleDTO) {
 		try {
-			keyCloakAdminService_V1.createRoleInKeyCloak(roleDTO);
+			adminService.createRole(roleDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
 	/**
-	 * 查询所有角色
+	 * 编辑角色
+	 *
+	 * @param roleDTO 
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 11:43
+	 */
+	@PostMapping(value = "/api/role/edit")
+	public ResponseEntity<?> edit(@RequestBody RoleDTO roleDTO) {
+		try {
+			adminService.updateRole(roleDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 删除角色
+	 *
+	 * @param name
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 9:43
+	 */
+	@DeleteMapping(value = "/api/role/{name}")
+	public ResponseEntity<?> deleteRole(@PathVariable String name){
+		try {
+			adminService.deleteRole(name);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 查询角色
+	 *
+	 * @param rid
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 9:43
+	 */
+	@GetMapping(value = "/api/role/{rid}")
+	public ResponseEntity<?> getRole(@PathVariable String rid) {
+		try {
+			RoleDTO role = adminService.getRole(rid);
+			return ResponseEntity.ok(role);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 角色列表
 	 *
 	 * @param  
 	 * @return org.springframework.http.ResponseEntity<?>
@@ -194,13 +238,12 @@ public class MainController {
 	 * @date 2021/10/12 9:44
 	 */
 	@GetMapping(value = "/api/role/list")
-	public ResponseEntity<?> getRolesInKeyCloak() {
+	public ResponseEntity<?> listRoles() {
 		try {
-			List<RoleDTO>  roles = keyCloakAdminService_V1.getRolesInKeyCloak();
+			List<RoleDTO>  roles = adminService.listRoles();
 			return ResponseEntity.ok(roles);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 
@@ -217,32 +260,65 @@ public class MainController {
 	 * @date 2021/10/12 9:43
 	 */
     @PostMapping(value = "/api/mapping/create")
-	public ResponseEntity<?> createMappingInKeyCloak(@RequestBody MappingDTO mappingDTO) {
+	public ResponseEntity<?> createMapping(@RequestBody MappingDTO mappingDTO) {
 		try {
-			keyCloakAdminService_V1.createMappingInKeyCloak(mappingDTO);
+			adminService.createMapping(mappingDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
-	
+
 	/**
-	 * 查询所有关联
+	 * deleteMapping
 	 *
-	 * @param userDTO 
+	 * @param mappingDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 14:22
+	 */
+    @DeleteMapping(value = "/api/mapping/delete")
+	public ResponseEntity<?> deleteMapping(@RequestBody MappingDTO mappingDTO) {
+		try {
+			adminService.deleteMapping(mappingDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 查询单用户所有关联
+	 *
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/12 9:45
 	 */
 	@GetMapping(value = "/api/mapping/list")
-	public ResponseEntity<?> getMappingsInKeyCloak(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> listMappings() {
 		try {
-			List<MappingDTO> mappings = keyCloakAdminService_V1.getMappingsByUser(userDTO.getId());
+			List<MappingDTO> mappings = adminService.listMappings();
 			return ResponseEntity.ok(mappings);
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 列出所有用户的所有权限
+	 *
+	 * @param uid
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 9:45
+	 */
+	@GetMapping(value = "/api/mapping/{uid}")
+	public ResponseEntity<?> getRolesByUser(@PathVariable String uid) {
+		try {
+			List<MappingDTO> mappings = adminService.getMappingsByUser(uid);
+			return ResponseEntity.ok(mappings);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
 		}
 	}
 

@@ -4,8 +4,7 @@ import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserCredentials;
 import com.example.demo.dto.UserDTO;
-import com.example.demo.services.KeyCloakAdminService_V0;
-import com.example.demo.services.KeyCloakAdminService_V1;
+import com.example.demo.services.AdminService;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -13,7 +12,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -21,7 +19,6 @@ import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.MappingsRepresentation;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -42,15 +39,15 @@ import java.util.stream.Collectors;
  * @date 2021/09/26 11:12:45
  **/
 @Service
-public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
+public class AdminServiceImpl implements AdminService {
 
-	private String SECRETKEY = "keycloak";
+	private String SECRET_KEY = "keycloak";
 
 	@Value("${keycloak.resource}")
-	private String CLIENTID;
+	private String CLIENT_ID;
 
 	@Value("${keycloak.auth-server-url}")
-	private String AUTHURL;
+	private String AUTH_URL;
 
 	@Value("${keycloak.realm}")
 	private String REALM;
@@ -61,10 +58,10 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			String username = userCredentials.getUsername();
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 			urlParameters.add(new BasicNameValuePair("grant_type", "password"));
-			urlParameters.add(new BasicNameValuePair("client_id", CLIENTID));
+			urlParameters.add(new BasicNameValuePair("client_id", CLIENT_ID));
 			urlParameters.add(new BasicNameValuePair("username", username));
 			urlParameters.add(new BasicNameValuePair("password", userCredentials.getPassword()));
-			urlParameters.add(new BasicNameValuePair("client_secret", SECRETKEY));
+			urlParameters.add(new BasicNameValuePair("client_secret", SECRET_KEY));
 			responseToken = sendPost(urlParameters);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -78,9 +75,9 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		try {
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 			urlParameters.add(new BasicNameValuePair("grant_type", "refresh_token"));
-			urlParameters.add(new BasicNameValuePair("client_id", CLIENTID));
+			urlParameters.add(new BasicNameValuePair("client_id", CLIENT_ID));
 			urlParameters.add(new BasicNameValuePair("refresh_token", refreshToken));
-			urlParameters.add(new BasicNameValuePair("client_secret", SECRETKEY));
+			urlParameters.add(new BasicNameValuePair("client_secret", SECRET_KEY));
 			responseToken = sendPost(urlParameters);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,14 +86,14 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	@Override
-	public List<UserDTO> getUsersInKeyCloak() {
+	public List<UserDTO> listUsers() {
 		UsersResource usersResource = getKeycloakUserResource();
 		List<UserRepresentation> userRepresentations = usersResource.list();
 		return userRepresentations.stream().map(userRepresentation -> convertUser(userRepresentation)).collect(Collectors.toList());
 	}
 
 	@Override
-	public UserDTO getUserInKeyCloak(String uid) {
+	public UserDTO getUser(String uid) {
 		UsersResource usersResource = getKeycloakUserResource();
 		UserResource userResource = usersResource.get(uid);
 		UserDTO user = convertUser(userResource.toRepresentation());
@@ -106,7 +103,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return user;
 	}
 
-	public String createUserInKeyCloak(UserDTO userDTO) {
+	public String createUser(UserDTO userDTO) {
 		String uid = "0";
 		try {
 			UsersResource userResource = getKeycloakUserResource();
@@ -164,7 +161,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	@Override
-	public void updateUserInKeyCloak(UserDTO userDTO) {
+	public void updateUser(UserDTO userDTO) {
 		try {
 			UsersResource userResource = getKeycloakUserResource();
 			UserResource userToEdit = userResource.get(userDTO.getId());
@@ -189,20 +186,13 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	@Override
-	public String deleteUserInKeyCloak(String id) {
+	public String deleteUser(String id) {
 		UsersResource usersResource = getKeycloakUserResource();
 		Response result = usersResource.delete(id);
 		return result.getStatus()+"";
 	}
 
-	@Override
-	public List<RoleDTO> getRolesInKeyCloak() {
-		RolesResource rolesResource = getKeycloakRoleResource();
-		List<RoleRepresentation> roleRepresentations = rolesResource.list();
-		return roleRepresentations.stream().map(roleRepresentation -> convertRole(roleRepresentation)).collect(Collectors.toList());
-	}
-
-	public int createRoleInKeyCloak(RoleDTO roleDTO) {
+	public int createRole(RoleDTO roleDTO) {
 		int statusId = 0;
 		try {
 			RolesResource rolesResource = getKeycloakRoleResource();
@@ -220,39 +210,56 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		}
 
 		return statusId;
-
 	}
 
 	@Override
-	public void deleteRolesInKeyCloak(RoleDTO roleDTO) {
+	public void updateRole(RoleDTO roleDTO) {
 		RolesResource rolesResource = getKeycloakRoleResource();
-		rolesResource.deleteRole(roleDTO.getName());
+		List<RoleRepresentation> roleToEditList = rolesResource
+				.list().stream()
+				.filter(rr -> roleDTO.getId().equals(rr.getId()))
+				.collect(Collectors.toList());
+		if(Objects.nonNull(roleToEditList) && !roleToEditList.isEmpty()){
+			RoleRepresentation roleToEdit = roleToEditList.get(0);
+			RoleResource roleResource = rolesResource.get(roleToEdit.getName());
+			roleResource.update( copyProperty(roleDTO, roleToEdit) );
+		}
 	}
 
 	@Override
-	public void updateRolesInKeyCloak(RoleDTO roleDTO) {
+	public void deleteRole(String name) {
 		RolesResource rolesResource = getKeycloakRoleResource();
-		//TODO: 更新角色
+		rolesResource.deleteRole(name);
 	}
 
-	public int createMappingInKeyCloak(MappingDTO mappingDTO) {
+	@Override
+	public RoleDTO getRole(String name) {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		RoleResource roleResource = rolesResource.get(name);
+		return convertRole(roleResource.toRepresentation());
+	}
+
+	@Override
+	public List<RoleDTO> listRoles() {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		List<RoleRepresentation> roleRepresentations = rolesResource.list();
+		return roleRepresentations.stream().map(roleRepresentation -> convertRole(roleRepresentation)).collect(Collectors.toList());
+	}
+
+	@Override
+	public int createMapping(MappingDTO mappingDTO) {
 		int statusId = 0;
 
 		try {
-			RealmResource realmResource = getRealmResource();
-			String clientUUID = realmResource.clients().findByClientId("localhost8888").get(0).getClientId();
-
 			RolesResource rolesResource = getKeycloakRoleResource();
-			List<RoleRepresentation> rolesToAdd = rolesResource.list().stream()
-					.filter(role -> mappingDTO.getRoleName().equals(role.getName())).collect(Collectors.toList());
+			List<RoleRepresentation> rolesToAdd = rolesResource
+					.list().stream()
+					.filter(role -> mappingDTO.getRoleId().equals(role.getId()))
+					.collect(Collectors.toList());
 
 			UsersResource usersResource = getKeycloakUserResource();
-			List<UserRepresentation> users = usersResource.list().stream().filter(user -> mappingDTO.getUserId().equals(user.getId())).collect(Collectors.toList());
-
 			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, mappingDTO.getUserId());
 			roleMappingResource.realmLevel().add(rolesToAdd);
-			//usersResource.get("").roles().clientLevel(clientUUID).add(rolesToAdd);
-
 		} catch (Exception e) {
 			statusId = -1;
 			e.printStackTrace();
@@ -263,20 +270,47 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	@Override
 	public List<MappingDTO> getMappingsByUser(String uid) {
-
 		UsersResource usersResource = getKeycloakUserResource();
 		RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, uid);
-		List<RoleRepresentation> aa = roleMappingResource.realmLevel().listAll();
+		List<RoleRepresentation> rm = roleMappingResource.realmLevel().listAll();
 
-		return aa.stream().map(roleRepresentation -> toMappingDto(roleRepresentation, uid)).collect(Collectors.toList());
+		return rm.stream().map(roleRepresentation -> toMappingDto(roleRepresentation, uid)).collect(Collectors.toList());
 	}
 
 	@Override
-	public void deleteMappingsByUser(MappingDTO mapping) {
+	public List<MappingDTO> listMappings() {
+		List<MappingDTO> allMappings = new ArrayList();
 		UsersResource usersResource = getKeycloakUserResource();
-		//TODO: 删除
+		usersResource.list().stream().forEach(userResource -> {
+			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, userResource.getId());
+			UserRepresentation userRepresentation = usersResource.get(userResource.getId()).toRepresentation();
+			List<MappingDTO> userMappings = roleMappingResource
+					.realmLevel()
+					.listAll().stream()
+					.map(roleRepresentation -> toMappingDto(roleRepresentation, userRepresentation))
+					.collect(Collectors.toList());
 
-		//List<RoleRepresentation> aa = roleMappingResource.realmLevel().remove();
+			allMappings.addAll(userMappings);
+		});
+
+		return allMappings;
+	}
+
+	@Override
+	public void deleteMapping(MappingDTO mappingDTO) {
+		try {
+			RolesResource rolesResource = getKeycloakRoleResource();
+			List<RoleRepresentation> rolesToRemove = rolesResource
+					.list().stream()
+					.filter(role -> mappingDTO.getRoleId().equals(role.getId()))
+					.collect(Collectors.toList());
+
+			UsersResource usersResource = getKeycloakUserResource();
+			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, mappingDTO.getUserId());
+			roleMappingResource.realmLevel().remove(rolesToRemove);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	// after logout user from the keycloak system. No new access token will be issued.
@@ -324,6 +358,21 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 		return userToEdit;
 	}
 
+	private RoleRepresentation copyProperty(RoleDTO roleDTO, RoleRepresentation roleToEdit) {
+		//基本信息
+		if(Objects.nonNull(roleDTO.getName())){
+			roleToEdit.setName(roleDTO.getName());
+		}
+		if(Objects.nonNull(roleDTO.getDescription())){
+			roleToEdit.setDescription(roleDTO.getDescription());
+		}
+		if(Objects.nonNull(roleDTO.getClientRole())){
+			roleToEdit.setClientRole(roleDTO.getClientRole());
+		}
+
+		return roleToEdit;
+	}
+
 	private UserDTO convertUser(UserRepresentation userRepresentation) {
 		UserDTO u = new UserDTO();
 		u.setId(userRepresentation.getId());
@@ -336,6 +385,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	private RoleDTO convertRole(RoleRepresentation roleRepresentation) {
 		RoleDTO r = new RoleDTO();
+		r.setId( roleRepresentation.getId() );
 		r.setName( roleRepresentation.getName() );
 		r.setDescription( roleRepresentation.getDescription() );
 		r.setClientRole( roleRepresentation.getClientRole() );
@@ -343,7 +393,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	private UsersResource getKeycloakUserResource() {
-		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("admin").password("admin")
+		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
 				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 				.build();
 
@@ -354,7 +404,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	private RolesResource getKeycloakRoleResource() {
-		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("admin").password("admin")
+		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
 				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 				.build();
 
@@ -369,7 +419,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 	}
 
 	private RealmResource getRealmResource() {
-		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTHURL).realm("master").username("admin").password("admin")
+		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
 				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 				.build();
 
@@ -379,7 +429,7 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 
 	private String sendPost(List<NameValuePair> urlParameters) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost post = new HttpPost(AUTHURL + "/realms/" + REALM + "/protocol/openid-connect/token");
+		HttpPost post = new HttpPost(AUTH_URL + "/realms/" + REALM + "/protocol/openid-connect/token");
 
 		post.setEntity(new UrlEncodedFormEntity(urlParameters));
 		HttpResponse response = client.execute(post);
@@ -391,6 +441,12 @@ public class KeyCloakAdminServiceImpl_V1 implements KeyCloakAdminService_V1 {
 			result.append(line);
 		}
 		return result.toString();
+	}
+
+	private MappingDTO toMappingDto(RoleRepresentation roleRepresentation, UserRepresentation user) {
+		MappingDTO m = toMappingDto(roleRepresentation, user.getId());
+		m.setUserName(user.getUsername());
+		return m;
 	}
 
 	private MappingDTO toMappingDto(RoleRepresentation roleRepresentation, String uid) {
