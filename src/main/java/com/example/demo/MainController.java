@@ -1,11 +1,15 @@
 package com.example.demo;
 
+import com.example.demo.dto.GroupMappingDTO;
 import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.AdminService;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
+import org.keycloak.representations.idm.GroupRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -325,5 +329,90 @@ public class MainController {
     /**********************************/
     /***************MENU***************/
     /**********************************/
+	@GetMapping(value = "/api/group/uid/{uid}")
+	public ResponseEntity<?> getGroupByUser(@PathVariable String uid) {
+		try {
+			List<GroupRepresentation> groups = adminService.getGroupsByUser(uid);
+			return ResponseEntity.ok(groups);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
 
+	@GetMapping(value = "/api/group/id/{gid}")
+	public ResponseEntity<?> getGroupById(@PathVariable String gid) {
+		try {
+			GroupRepresentation group = adminService.getGroupById(gid);
+			return ResponseEntity.ok(group);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+
+	@GetMapping(value = "/api/group/list")
+	public ResponseEntity<?> listGroups() {
+		try {
+			List<GroupRepresentation> groups = adminService.listGroups();
+			return ResponseEntity.ok(groups);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	@GetMapping(value = "/api/group/roles/{gid}")
+	public ResponseEntity<?> getRolesByGroupId(@PathVariable String gid) {
+		try {
+			List<RoleRepresentation> roles = adminService.getGroupRoles(gid);
+			return ResponseEntity.ok(roles);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	@GetMapping(value = "/api/group/members/{gid}")
+	public ResponseEntity<?> getMembersByGroupId(@PathVariable String gid) {
+		try {
+			List<UserRepresentation> users = adminService.getGroupMembers(gid);
+			return ResponseEntity.ok(users);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 向组中添加用户
+	 *
+	 * @param groupMappingDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/13 10:59
+	 */
+    @PostMapping(value = "/api/group/join")
+	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
+		try {
+			adminService.joinGroup(groupMappingDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
+
+	/**
+	 * 从组中移除用户
+	 *
+	 * @param groupMappingDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/13 10:59
+	 */
+    @PostMapping(value = "/api/group/leave")
+	public ResponseEntity<?> leaveGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
+		try {
+			adminService.leaveGroup(groupMappingDTO);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return ResponseEntity.ok(ex.getMessage());
+		}
+	}
 }

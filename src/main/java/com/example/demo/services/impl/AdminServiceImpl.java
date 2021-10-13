@@ -1,9 +1,6 @@
 package com.example.demo.services.impl;
 
-import com.example.demo.dto.MappingDTO;
-import com.example.demo.dto.RoleDTO;
-import com.example.demo.dto.UserCredentials;
-import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.*;
 import com.example.demo.services.AdminService;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -16,9 +13,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.*;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
+import org.keycloak.representations.idm.*;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -87,14 +82,14 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<UserDTO> listUsers() {
-		UsersResource usersResource = getKeycloakUserResource();
+		UsersResource usersResource = getKeycloakUsersResource();
 		List<UserRepresentation> userRepresentations = usersResource.list();
 		return userRepresentations.stream().map(userRepresentation -> convertUser(userRepresentation)).collect(Collectors.toList());
 	}
 
 	@Override
 	public UserDTO getUser(String uid) {
-		UsersResource usersResource = getKeycloakUserResource();
+		UsersResource usersResource = getKeycloakUsersResource();
 		UserResource userResource = usersResource.get(uid);
 		UserDTO user = convertUser(userResource.toRepresentation());
 		Map<String, List<String>> attrs = userResource.toRepresentation().getAttributes();
@@ -106,7 +101,7 @@ public class AdminServiceImpl implements AdminService {
 	public String createUser(UserDTO userDTO) {
 		String uid = "0";
 		try {
-			UsersResource userResource = getKeycloakUserResource();
+			UsersResource userResource = getKeycloakUsersResource();
 			UserRepresentation user = new UserRepresentation();
 			user.setUsername(userDTO.getUserName());
 			user.setEmail(userDTO.getEmailAddress());
@@ -163,7 +158,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public void updateUser(UserDTO userDTO) {
 		try {
-			UsersResource userResource = getKeycloakUserResource();
+			UsersResource userResource = getKeycloakUsersResource();
 			UserResource userToEdit = userResource.get(userDTO.getId());
 
 			UserRepresentation user = copyProperty(userDTO, userToEdit.toRepresentation());
@@ -187,7 +182,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public String deleteUser(String id) {
-		UsersResource usersResource = getKeycloakUserResource();
+		UsersResource usersResource = getKeycloakUsersResource();
 		Response result = usersResource.delete(id);
 		return result.getStatus()+"";
 	}
@@ -257,7 +252,7 @@ public class AdminServiceImpl implements AdminService {
 					.filter(role -> mappingDTO.getRoleId().equals(role.getId()))
 					.collect(Collectors.toList());
 
-			UsersResource usersResource = getKeycloakUserResource();
+			UsersResource usersResource = getKeycloakUsersResource();
 			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, mappingDTO.getUserId());
 			roleMappingResource.realmLevel().add(rolesToAdd);
 		} catch (Exception e) {
@@ -270,7 +265,7 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<MappingDTO> getMappingsByUser(String uid) {
-		UsersResource usersResource = getKeycloakUserResource();
+		UsersResource usersResource = getKeycloakUsersResource();
 		RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, uid);
 		List<RoleRepresentation> rm = roleMappingResource.realmLevel().listAll();
 
@@ -280,7 +275,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public List<MappingDTO> listMappings() {
 		List<MappingDTO> allMappings = new ArrayList();
-		UsersResource usersResource = getKeycloakUserResource();
+		UsersResource usersResource = getKeycloakUsersResource();
 		usersResource.list().stream().forEach(userResource -> {
 			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, userResource.getId());
 			UserRepresentation userRepresentation = usersResource.get(userResource.getId()).toRepresentation();
@@ -305,7 +300,7 @@ public class AdminServiceImpl implements AdminService {
 					.filter(role -> mappingDTO.getRoleId().equals(role.getId()))
 					.collect(Collectors.toList());
 
-			UsersResource usersResource = getKeycloakUserResource();
+			UsersResource usersResource = getKeycloakUsersResource();
 			RoleMappingResource roleMappingResource = getKeycloakRoleMappingResource(usersResource, mappingDTO.getUserId());
 			roleMappingResource.realmLevel().remove(rolesToRemove);
 		} catch (Exception e) {
@@ -313,15 +308,66 @@ public class AdminServiceImpl implements AdminService {
 		}
 	}
 
+	@Override
+	public List<GroupRepresentation> getGroupsByUser(String uid) {
+		UsersResource usersResource = getKeycloakUsersResource();
+		return usersResource.get(uid).groups();
+	}
+
+	@Override
+	public GroupRepresentation getGroupById(String gid) {
+		GroupsResource groupsResource = getKeycloakGroupsResource();
+		return groupsResource.group(gid).toRepresentation();
+	}
+
+	@Override
+	public List<RoleRepresentation> getGroupRoles(String gid) {
+		GroupsResource groupsResource = getKeycloakGroupsResource();
+		RoleMappingResource rolesResource = groupsResource.group(gid).roles();
+		return rolesResource.realmLevel().listAll();
+	}
+
+	@Override
+	public List<UserRepresentation> getGroupMembers(String gid) {
+		GroupsResource groupsResource = getKeycloakGroupsResource();
+		return groupsResource.group(gid).members();
+	}
+
+	@Override
+	public List<GroupRepresentation> listGroups() {
+		GroupsResource groupsResource = getKeycloakGroupsResource();
+		List<GroupRepresentation> gs = new ArrayList<GroupRepresentation>();
+		groupsResource.groups().stream().forEach(group -> {
+			GroupRepresentation gr = getGroupById(group.getId());
+			gs.add(gr);
+		});
+		//return groupsResource.groups(); //lazy
+		return gs;
+	}
+
+	@Override
+	public void joinGroup(GroupMappingDTO groupMappingDTO) {
+		UsersResource usersResource = getKeycloakUsersResource();
+		UserResource userResource = usersResource.get(groupMappingDTO.getUserId());
+		userResource.joinGroup(groupMappingDTO.getGroupId());
+	}
+
+	@Override
+	public void leaveGroup(GroupMappingDTO groupMappingDTO) {
+		UsersResource usersResource = getKeycloakUsersResource();
+		UserResource userResource = usersResource.get(groupMappingDTO.getUserId());
+		userResource.leaveGroup(groupMappingDTO.getGroupId());
+	}
+
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
-		UsersResource userResource = getKeycloakUserResource();
+		UsersResource userResource = getKeycloakUsersResource();
 		userResource.get(userId).logout();
 	}
 
 	// Reset passowrd
 	public void resetPassword(String newPassword, String userId) {
-		UsersResource userResource = getKeycloakUserResource();
+		UsersResource userResource = getKeycloakUsersResource();
 
 		// Define password credential
 		CredentialRepresentation passwordCred = new CredentialRepresentation();
@@ -392,15 +438,14 @@ public class AdminServiceImpl implements AdminService {
 		return r;
 	}
 
-	private UsersResource getKeycloakUserResource() {
+	private UsersResource getKeycloakUsersResource() {
 		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
 				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 				.build();
 
 		RealmResource realmResource = kc.realm(REALM);
-		UsersResource userResource = realmResource.users();
 
-		return userResource;
+		return realmResource.users();
 	}
 
 	private RolesResource getKeycloakRoleResource() {
@@ -416,6 +461,16 @@ public class AdminServiceImpl implements AdminService {
 
 	private RoleMappingResource getKeycloakRoleMappingResource(UsersResource usersResource, String userId) {
 		return usersResource.get(userId).roles();
+	}
+
+	private GroupsResource getKeycloakGroupsResource() {
+		Keycloak kc = KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
+				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+				.build();
+
+		RealmResource realmResource = kc.realm(REALM);
+
+		return realmResource.groups();
 	}
 
 	private RealmResource getRealmResource() {
