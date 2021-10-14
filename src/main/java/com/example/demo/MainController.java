@@ -78,8 +78,9 @@ public class MainController {
 	 * @date 2021/10/12 9:42
 	 */
 	@PostMapping(value = "/user/create")
-	public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> create(@RequestBody UserDTO userDTO, KeycloakAuthenticationToken authentication) {
 		try {
+			userDTO.setUpdateBy(authentication.getName());
 			return ResponseEntity.ok( adminService.createUser(userDTO) );
 		} catch (Exception ex) {
 			return ResponseEntity.ok(ex.getMessage());
@@ -95,8 +96,9 @@ public class MainController {
 	 * @date 2021/10/12 9:42
 	 */
 	@PostMapping(value = "/user/edit")
-	public ResponseEntity<?> edit(@RequestBody UserDTO userDTO) {
+	public ResponseEntity<?> edit(@RequestBody UserDTO userDTO, KeycloakAuthenticationToken authentication) {
 		try {
+			userDTO.setUpdateBy(authentication.getName());
 			adminService.updateUser(userDTO);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {

@@ -2,6 +2,7 @@ package com.example.demo.services.impl;
 
 import com.example.demo.dto.*;
 import com.example.demo.services.AdminService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -9,6 +10,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -24,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * ImplBak
@@ -92,8 +95,6 @@ public class AdminServiceImpl implements AdminService {
 		UsersResource usersResource = getKeycloakUsersResource();
 		UserResource userResource = usersResource.get(uid);
 		UserDTO user = convertUser(userResource.toRepresentation());
-		Map<String, List<String>> attrs = userResource.toRepresentation().getAttributes();
-		user.setAttrs(attrs);
 
 		return user;
 	}
@@ -102,12 +103,8 @@ public class AdminServiceImpl implements AdminService {
 		String uid = "0";
 		try {
 			UsersResource userResource = getKeycloakUsersResource();
-			UserRepresentation user = new UserRepresentation();
-			user.setUsername(userDTO.getUserName());
-			user.setEmail(userDTO.getEmailAddress());
-			user.setFirstName(userDTO.getFirstName());
-			user.setLastName(userDTO.getLastName());
-			user.setEnabled(true);
+
+			UserRepresentation user = copyProperty(userDTO, new UserRepresentation() );
 
 			// Create user
 			Response result = userResource.create(user);
@@ -138,13 +135,13 @@ public class AdminServiceImpl implements AdminService {
 					System.err.println("javax.ws.rs.NotFoundException: HTTP 404 Not Found");
 				}
 
-				System.out.println("Username==" + userDTO.getUserName() + " created in keycloak successfully");
+				System.out.println("Username==" + userDTO.getUsername() + " created in keycloak successfully");
 			}
 
 			else if (statusId == Response.Status.CONFLICT.getStatusCode()) {
-				System.out.println("Username==" + userDTO.getUserName() + " already present in keycloak");
+				System.out.println("Username==" + userDTO.getUsername() + " already present in keycloak");
 			} else {
-				System.out.println("Username==" + userDTO.getUserName() + " could not be created in keycloak");
+				System.out.println("Username==" + userDTO.getUsername() + " could not be created in keycloak");
 			}
 
 		} catch (Exception e) {
@@ -381,12 +378,14 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	private UserRepresentation copyProperty(UserDTO userDTO, UserRepresentation userToEdit) {
+		Map<String, List<String>> attributes = Optional.ofNullable(userToEdit.getAttributes()).orElse(new HashMap<>());
+
 		//基本信息
-		if(Objects.nonNull(userDTO.getUserName())){
-			userToEdit.setUsername(userDTO.getUserName());
+		if(Objects.nonNull(userDTO.getUsername())){
+			userToEdit.setUsername(userDTO.getUsername());
 		}
-		if(Objects.nonNull(userDTO.getEmailAddress())){
-			userToEdit.setEmail(userDTO.getEmailAddress());
+		if(Objects.nonNull(userDTO.getEmail())){
+			userToEdit.setEmail(userDTO.getEmail());
 		}
 		if(Objects.nonNull(userDTO.getFirstName())){
 			userToEdit.setFirstName(userDTO.getFirstName());
@@ -394,12 +393,27 @@ public class AdminServiceImpl implements AdminService {
 		if(Objects.nonNull(userDTO.getLastName())){
 			userToEdit.setLastName(userDTO.getLastName());
 		}
-
-		//其他属性
-		if(Objects.nonNull(userDTO.getAttrs())){
-			//TODO:这里是覆盖, 要做成检测相同的覆盖 其余的保留, 即为合并
-			userToEdit.setAttributes(userDTO.getAttrs());
+		if(Objects.nonNull(userDTO.getGender())){
+			attributes.put("gender", Stream.of(userDTO.getGender()).collect(Collectors.toList()));
 		}
+		if(Objects.nonNull(userDTO.getEnabled())){
+			userToEdit.setEnabled(userDTO.getEnabled());
+		}
+		if(Objects.nonNull(userDTO.getJobs())){
+			attributes.put("jobs", Stream.of(userDTO.getJobs()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(userDTO.getMobile())){
+			attributes.put("mobile", Stream.of(userDTO.getMobile()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(userDTO.getUpdateBy())){
+			attributes.put("updateBy", Stream.of(userDTO.getUpdateBy()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(userDTO.getMobile())){
+			Date d = userDTO.getUpdateAt();
+			attributes.put("updateAt", Stream.of(d.getTime()+"").collect(Collectors.toList()));
+		}
+
+		userToEdit.setAttributes(attributes);
 
 		return userToEdit;
 	}
@@ -422,10 +436,30 @@ public class AdminServiceImpl implements AdminService {
 	private UserDTO convertUser(UserRepresentation userRepresentation) {
 		UserDTO u = new UserDTO();
 		u.setId(userRepresentation.getId());
-		u.setUserName( userRepresentation.getUsername() );
-		u.setEmailAddress(userRepresentation.getEmail() );
+		u.setUsername( userRepresentation.getUsername() );
+		u.setEmail(userRepresentation.getEmail() );
 		u.setFirstName(userRepresentation.getFirstName());
 		u.setLastName(userRepresentation.getLastName());
+		u.setEnabled(userRepresentation.isEnabled());
+		u.setRole( getMappingsByUser(userRepresentation.getId()) );
+
+		Map<String, List<String>> attributes = userRepresentation.getAttributes();
+		if(Objects.nonNull(attributes)){
+			if(Objects.nonNull(attributes.get("gender")))
+				u.setGender( StringUtils.join(attributes.get("gender"),", ") );
+			if(Objects.nonNull(attributes.get("jobs")))
+				u.setJobs( StringUtils.join(attributes.get("jobs"),", ") );
+			if(Objects.nonNull(attributes.get("mobile")))
+				u.setMobile( StringUtils.join(attributes.get("mobile"),", ") );
+			if(Objects.nonNull(attributes.get("updateBy")))
+				u.setUpdateBy( StringUtils.join(attributes.get("updateBy"),", ") );
+			if(Objects.nonNull(attributes.get("updateAt"))){
+				Long date = new Long( attributes.get("updateAt").get(0) );
+				u.setUpdateAt( new Date(date) );
+			}
+
+		}
+
 		return u;
 	}
 
@@ -509,6 +543,7 @@ public class AdminServiceImpl implements AdminService {
 		m.setUserId(uid);
 		m.setRoleId(roleRepresentation.getId());
 		m.setRoleName(roleRepresentation.getName());
+		m.setDescription(roleRepresentation.getDescription());
 
 		return m;
 	}

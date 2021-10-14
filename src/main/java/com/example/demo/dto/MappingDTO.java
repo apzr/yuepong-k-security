@@ -17,5 +17,6 @@ public class MappingDTO {
     private String userName;
 	private String roleId;
 	private String roleName;
+	private String description;
 
 }
