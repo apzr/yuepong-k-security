@@ -60,7 +60,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:41
 	 */
-    @GetMapping("/api/user_info")
+    @GetMapping("/user_info")
     public ResponseEntity<AccessToken> apiUserinfo(KeycloakAuthenticationToken authentication) {
         return ResponseEntity.ok( authentication.getAccount().getKeycloakSecurityContext().getToken() );
     }
@@ -77,7 +77,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:42
 	 */
-	@PostMapping(value = "/api/user/create")
+	@PostMapping(value = "/user/create")
 	public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
 		try {
 			return ResponseEntity.ok( adminService.createUser(userDTO) );
@@ -94,7 +94,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:42
 	 */
-	@PostMapping(value = "/api/user/edit")
+	@PostMapping(value = "/user/edit")
 	public ResponseEntity<?> edit(@RequestBody UserDTO userDTO) {
 		try {
 			adminService.updateUser(userDTO);
@@ -112,7 +112,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@DeleteMapping(value = "/api/user/{uid}")
+	@DeleteMapping(value = "/user/{uid}")
 	public ResponseEntity<?> deleteUser(@PathVariable String uid) {
 		try {
 			return ResponseEntity.ok( adminService.deleteUser(uid) );
@@ -129,7 +129,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/api/user/{uid}")
+	@GetMapping(value = "/user/{uid}")
 	public ResponseEntity<?> getUser(@PathVariable String uid) {
 		try {
 			UserDTO user = adminService.getUser(uid);
@@ -147,7 +147,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/api/user/list")
+	@GetMapping(value = "/user/list")
 	public ResponseEntity<?> listUsers() {
 		try {
 			List<UserDTO> users = adminService.listUsers();
@@ -169,7 +169,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:42
 	 */
-	@PostMapping(value = "/api/role/create")
+	@PostMapping(value = "/role/create")
 	public ResponseEntity<?> create(@RequestBody RoleDTO roleDTO) {
 		try {
 			adminService.createRole(roleDTO);
@@ -187,7 +187,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 11:43
 	 */
-	@PostMapping(value = "/api/role/edit")
+	@PostMapping(value = "/role/edit")
 	public ResponseEntity<?> edit(@RequestBody RoleDTO roleDTO) {
 		try {
 			adminService.updateRole(roleDTO);
@@ -205,7 +205,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@DeleteMapping(value = "/api/role/{name}")
+	@DeleteMapping(value = "/role/{name}")
 	public ResponseEntity<?> deleteRole(@PathVariable String name){
 		try {
 			adminService.deleteRole(name);
@@ -223,7 +223,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/api/role/{rid}")
+	@GetMapping(value = "/role/{rid}")
 	public ResponseEntity<?> getRole(@PathVariable String rid) {
 		try {
 			RoleDTO role = adminService.getRole(rid);
@@ -241,7 +241,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:44
 	 */
-	@GetMapping(value = "/api/role/list")
+	@GetMapping(value = "/role/list")
 	public ResponseEntity<?> listRoles() {
 		try {
 			List<RoleDTO>  roles = adminService.listRoles();
@@ -263,7 +263,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-    @PostMapping(value = "/api/mapping/create")
+    @PostMapping(value = "/mapping/create")
 	public ResponseEntity<?> createMapping(@RequestBody MappingDTO mappingDTO) {
 		try {
 			adminService.createMapping(mappingDTO);
@@ -281,7 +281,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 14:22
 	 */
-    @DeleteMapping(value = "/api/mapping/delete")
+    @DeleteMapping(value = "/mapping/delete")
 	public ResponseEntity<?> deleteMapping(@RequestBody MappingDTO mappingDTO) {
 		try {
 			adminService.deleteMapping(mappingDTO);
@@ -298,7 +298,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:45
 	 */
-	@GetMapping(value = "/api/mapping/list")
+	@GetMapping(value = "/mapping/list")
 	public ResponseEntity<?> listMappings() {
 		try {
 			List<MappingDTO> mappings = adminService.listMappings();
@@ -316,7 +316,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:45
 	 */
-	@GetMapping(value = "/api/mapping/{uid}")
+	@GetMapping(value = "/mapping/{uid}")
 	public ResponseEntity<?> getRolesByUser(@PathVariable String uid) {
 		try {
 			List<MappingDTO> mappings = adminService.getMappingsByUser(uid);
@@ -329,7 +329,7 @@ public class MainController {
     /**********************************/
     /***************MENU***************/
     /**********************************/
-	@GetMapping(value = "/api/group/uid/{uid}")
+	@GetMapping(value = "/group/uid/{uid}")
 	public ResponseEntity<?> getGroupByUser(@PathVariable String uid) {
 		try {
 			List<GroupRepresentation> groups = adminService.getGroupsByUser(uid);
@@ -339,7 +339,7 @@ public class MainController {
 		}
 	}
 
-	@GetMapping(value = "/api/group/id/{gid}")
+	@GetMapping(value = "/group/id/{gid}")
 	public ResponseEntity<?> getGroupById(@PathVariable String gid) {
 		try {
 			GroupRepresentation group = adminService.getGroupById(gid);
@@ -350,7 +350,7 @@ public class MainController {
 	}
 
 
-	@GetMapping(value = "/api/group/list")
+	@GetMapping(value = "/group/list")
 	public ResponseEntity<?> listGroups() {
 		try {
 			List<GroupRepresentation> groups = adminService.listGroups();
@@ -360,7 +360,7 @@ public class MainController {
 		}
 	}
 
-	@GetMapping(value = "/api/group/roles/{gid}")
+	@GetMapping(value = "/group/roles/{gid}")
 	public ResponseEntity<?> getRolesByGroupId(@PathVariable String gid) {
 		try {
 			List<RoleRepresentation> roles = adminService.getGroupRoles(gid);
@@ -370,7 +370,7 @@ public class MainController {
 		}
 	}
 
-	@GetMapping(value = "/api/group/members/{gid}")
+	@GetMapping(value = "/group/members/{gid}")
 	public ResponseEntity<?> getMembersByGroupId(@PathVariable String gid) {
 		try {
 			List<UserRepresentation> users = adminService.getGroupMembers(gid);
@@ -388,7 +388,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/13 10:59
 	 */
-    @PostMapping(value = "/api/group/join")
+    @PostMapping(value = "/group/join")
 	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
 			adminService.joinGroup(groupMappingDTO);
@@ -406,7 +406,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/13 10:59
 	 */
-    @PostMapping(value = "/api/group/leave")
+    @PostMapping(value = "/group/leave")
 	public ResponseEntity<?> leaveGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
 			adminService.leaveGroup(groupMappingDTO);

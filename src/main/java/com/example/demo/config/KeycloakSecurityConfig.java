@@ -37,14 +37,15 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         super.configure(http);
-//        http.authorizeRequests()
-//            .antMatchers("/html/*").hasRole("VIEWER")
-//            //.antMatchers("/api/*").hasRole("API")
-//            .anyRequest()
-//            .permitAll();
+//      http.authorizeRequests()
+//          .antMatchers("/html/*").hasRole("VIEWER")
+//          .antMatchers("/api/*").hasRole("API")
+//          .anyRequest()
+//          .permitAll();
         http.authorizeRequests().anyRequest().permitAll();
         http.csrf().disable();//Invalid CSRF token found for http://127.0.0.1:8888/api/user/create
-//        http.cors().disable();
+        http.cors().disable();
+
     }
 
     @Autowired
