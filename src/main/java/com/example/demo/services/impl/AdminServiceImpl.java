@@ -2,7 +2,7 @@ package com.example.demo.services.impl;
 
 import com.example.demo.dto.*;
 import com.example.demo.services.AdminService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -100,7 +100,7 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	public String createUser(UserDTO userDTO) {
-		String uid = "0";
+		String uid = "-1";
 		try {
 			UsersResource userResource = getKeycloakUsersResource();
 
@@ -111,7 +111,7 @@ public class AdminServiceImpl implements AdminService {
 			System.out.println("Keycloak create user response code>>>>" + result.getStatus());
 
 			int statusId = result.getStatus();
-			if (statusId == Response.Status.OK.getStatusCode()) {
+			if (statusId >= 200 && statusId < 300) {
 
 				System.out.println("Keycloak create user getLocation>>>>" + result.getLocation().getPath());
 
