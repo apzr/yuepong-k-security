@@ -200,12 +200,9 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	public String createRole(RoleDTO roleDTO) {
 		RolesResource rolesResource = getKeycloakRoleResource();
-		RoleRepresentation role = new RoleRepresentation();
-		role.setName(roleDTO.getName());
-		role.setDescription(roleDTO.getDescription());
-		role.setClientRole(true);
 
 		// Create role
+		RoleRepresentation role = copyProperty(roleDTO, new RoleRepresentation());
 		rolesResource.create(role);
 
 		RoleResource roleResource = rolesResource.get(roleDTO.getName());
@@ -427,6 +424,8 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	private RoleRepresentation copyProperty(RoleDTO roleDTO, RoleRepresentation roleToEdit) {
+		Map<String, List<String>> attributes = Optional.ofNullable(roleToEdit.getAttributes()).orElse(new HashMap<>());
+
 		//基本信息
 		if(Objects.nonNull(roleDTO.getName())){
 			roleToEdit.setName(roleDTO.getName());
@@ -437,6 +436,24 @@ public class AdminServiceImpl implements AdminService {
 		if(Objects.nonNull(roleDTO.getClientRole())){
 			roleToEdit.setClientRole(roleDTO.getClientRole());
 		}
+
+		//attr
+		if(Objects.nonNull(roleDTO.getDisplayName())){
+			attributes.put("displayName", Stream.of(roleDTO.getDisplayName()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(roleDTO.getIndex())){
+			attributes.put("index", Stream.of(roleDTO.getIndex()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(roleDTO.getIcon())){
+			attributes.put("icon", Stream.of(roleDTO.getIcon()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(roleDTO.getUrl())){
+			attributes.put("url", Stream.of(roleDTO.getUrl()).collect(Collectors.toList()));
+		}
+		if(Objects.nonNull(roleDTO.getType())){
+			attributes.put("type", Stream.of(roleDTO.getType()).collect(Collectors.toList()));
+		}
+		roleToEdit.setAttributes(attributes);
 
 		return roleToEdit;
 	}
@@ -477,6 +494,22 @@ public class AdminServiceImpl implements AdminService {
 		r.setName( roleRepresentation.getName() );
 		r.setDescription( roleRepresentation.getDescription() );
 		r.setClientRole( roleRepresentation.getClientRole() );
+
+		Map<String, List<String>> attributes = roleRepresentation.getAttributes();
+		if(Objects.nonNull(attributes)){
+			if(Objects.nonNull(attributes.get("displayName")))
+				r.setDisplayName( StringUtils.join(attributes.get("displayName"),", ") );
+			if(Objects.nonNull(attributes.get("index")))
+				r.setIndex( StringUtils.join(attributes.get("index"),", ") );
+			if(Objects.nonNull(attributes.get("icon")))
+				r.setIcon( StringUtils.join(attributes.get("icon"),", ") );
+			if(Objects.nonNull(attributes.get("url")))
+				r.setUrl( StringUtils.join(attributes.get("url"),", ") );
+			if(Objects.nonNull(attributes.get("type"))){
+				r.setType( StringUtils.join(attributes.get("type"),", ") );
+			}
+
+		}
 		return r;
 	}
 
