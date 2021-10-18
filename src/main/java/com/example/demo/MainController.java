@@ -132,6 +132,24 @@ public class MainController {
 	}
 
 	/**
+	 * 重置密码
+	 *
+	 * @param userDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/12 9:43
+	 */
+	@PostMapping(value = "/user/reset")
+	public ResponseEntity<?> resetUser(@RequestBody UserDTO userDTO) {
+		try {
+			adminService.resetUser(userDTO.getId());
+			return ResponseResult.success().response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+	/**
 	 * 查询用户
 	 *
 	 * @param uid

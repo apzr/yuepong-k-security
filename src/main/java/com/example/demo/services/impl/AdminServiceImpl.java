@@ -184,6 +184,19 @@ public class AdminServiceImpl implements AdminService {
 		return result.getStatus()+"";
 	}
 
+	@Override
+	public void resetUser(String id) {
+		UsersResource userResource = getKeycloakUsersResource();
+		// Define password credential
+		CredentialRepresentation passwordCred = new CredentialRepresentation();
+		passwordCred.setTemporary(false);
+		passwordCred.setType(CredentialRepresentation.PASSWORD);
+		passwordCred.setValue("jjy123456");
+
+		// Set password credential
+		userResource.get(id).resetPassword(passwordCred);
+	}
+
 	public int createRole(RoleDTO roleDTO) {
 		int statusId = 0;
 		try {

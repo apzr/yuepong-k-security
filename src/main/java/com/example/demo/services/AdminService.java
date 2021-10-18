@@ -91,6 +91,16 @@ public interface AdminService {
     String deleteUser(String id) ;
 
     /**
+     * 重置密码
+     *
+     * @param id
+     * @return 
+     * @author apr
+     * @date 2021/10/18 14:50
+     */
+    void resetUser(String id);
+
+    /**
      * 用户列表
      *
      * @return int
