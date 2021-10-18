@@ -6,6 +6,7 @@ import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 import com.example.demo.services.AdminService;
 import com.yuepong.jdev.api.bean.ResponseResult;
+import com.yuepong.jdev.code.CodeMsgs;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -178,8 +179,8 @@ public class MainController {
 	@GetMapping(value = "/user/list")
 	public ResponseEntity<?> listUsers() {
 		try {
-			List<UserDTO> users = adminService.listUsers();
-			return ResponseResult.success("请求成功", users).response();
+			List<UserDTO> result = adminService.listUsers();
+			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -200,10 +201,11 @@ public class MainController {
 	@PostMapping(value = "/role/create")
 	public ResponseEntity<?> create(@RequestBody RoleDTO roleDTO) {
 		try {
-			adminService.createRole(roleDTO);
-			return ResponseResult.success().response();
+			String role_id = adminService.createRole(roleDTO);
+			return ResponseResult.success("请求成功", role_id).response();
 		} catch (Exception ex) {
-			return ResponseResult.error(ex.getMessage()).response();
+			ResponseResult<String> err = ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR, ex.getMessage(), roleDTO.getName());
+			return ResponseResult.response(err);
 		}
 	}
 

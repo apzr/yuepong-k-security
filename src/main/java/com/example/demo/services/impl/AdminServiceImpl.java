@@ -197,24 +197,19 @@ public class AdminServiceImpl implements AdminService {
 		userResource.get(id).resetPassword(passwordCred);
 	}
 
-	public int createRole(RoleDTO roleDTO) {
-		int statusId = 0;
-		try {
-			RolesResource rolesResource = getKeycloakRoleResource();
-			RoleRepresentation role = new RoleRepresentation();
-			role.setName(roleDTO.getName());
-			role.setDescription(roleDTO.getDescription());
-			role.setClientRole(true);
+	@Override
+	public String createRole(RoleDTO roleDTO) {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		RoleRepresentation role = new RoleRepresentation();
+		role.setName(roleDTO.getName());
+		role.setDescription(roleDTO.getDescription());
+		role.setClientRole(true);
 
-			// Create role
-			rolesResource.create(role);
+		// Create role
+		rolesResource.create(role);
 
-		} catch (Exception e) {
-			statusId = -1;
-			e.printStackTrace();
-		}
-
-		return statusId;
+		RoleResource roleResource = rolesResource.get(roleDTO.getName());
+		return roleResource.toRepresentation().getId();
 	}
 
 	@Override

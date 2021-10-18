@@ -126,7 +126,7 @@ public interface AdminService {
      * @author apr
      * @date 2021/9/26 11:19
      */
-    int createRole(RoleDTO roleDTO) ;
+    String createRole(RoleDTO roleDTO) ;
 
     /**
      * 编辑角色
