@@ -408,7 +408,7 @@ public class AdminServiceImpl implements AdminService {
 		if(Objects.nonNull(userDTO.getUpdateBy())){
 			attributes.put("updateBy", Stream.of(userDTO.getUpdateBy()).collect(Collectors.toList()));
 		}
-		if(Objects.nonNull(userDTO.getMobile())){
+		if(Objects.nonNull(userDTO.getUpdateAt())){
 			Date d = userDTO.getUpdateAt();
 			attributes.put("updateAt", Stream.of(d.getTime()+"").collect(Collectors.toList()));
 		}
