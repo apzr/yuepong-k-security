@@ -47,6 +47,11 @@ public class RoleDTO implements Serializable {
 	private String type;
 
 	/**
+	 * 父节点
+	 */
+	private String parent;
+
+	/**
 	 * 客户端角色还是域角色
 	 */
 	private Boolean clientRole;

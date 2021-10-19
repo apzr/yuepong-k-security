@@ -161,6 +161,15 @@ public interface AdminService {
      * @author apr
      * @date 2021/9/26 11:19
      */
+    List<RoleDTO> getRole(RoleDTO conditions) ;
+
+    /**
+     * 角色列表
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
     List<RoleDTO> listRoles() ;
 
     /**

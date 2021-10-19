@@ -237,9 +237,20 @@ public class AdminServiceImpl implements AdminService {
 	}
 
 	@Override
+	public List<RoleDTO> getRole(RoleDTO conditions) {
+		RolesResource rolesResource = getKeycloakRoleResource();
+		List<RoleRepresentation> roles = getAllRoles();
+		List<RoleRepresentation> filterRoles = roles.stream()
+				.filter(role -> matchRole(role, conditions))
+				.collect(Collectors.toList());
+
+		return filterRoles.stream().map(role -> convertRole(role)).collect(Collectors.toList());
+	}
+
+	@Override
 	public List<RoleDTO> listRoles() {
 		RolesResource rolesResource = getKeycloakRoleResource();
-		List<RoleRepresentation> roleRepresentations = rolesResource.list();
+		List<RoleRepresentation> roleRepresentations = getAllRoles();
 		return roleRepresentations.stream().map(roleRepresentation -> convertRole(roleRepresentation)).collect(Collectors.toList());
 	}
 
@@ -438,21 +449,19 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		//attr
-		if(Objects.nonNull(roleDTO.getDisplayName())){
+		if(Objects.nonNull(roleDTO.getDisplayName()))
 			attributes.put("displayName", Stream.of(roleDTO.getDisplayName()).collect(Collectors.toList()));
-		}
-		if(Objects.nonNull(roleDTO.getIndex())){
+		if(Objects.nonNull(roleDTO.getIndex()))
 			attributes.put("index", Stream.of(roleDTO.getIndex()).collect(Collectors.toList()));
-		}
-		if(Objects.nonNull(roleDTO.getIcon())){
+		if(Objects.nonNull(roleDTO.getIcon()))
 			attributes.put("icon", Stream.of(roleDTO.getIcon()).collect(Collectors.toList()));
-		}
-		if(Objects.nonNull(roleDTO.getUrl())){
+		if(Objects.nonNull(roleDTO.getUrl()))
 			attributes.put("url", Stream.of(roleDTO.getUrl()).collect(Collectors.toList()));
-		}
-		if(Objects.nonNull(roleDTO.getType())){
+		if(Objects.nonNull(roleDTO.getType()))
 			attributes.put("type", Stream.of(roleDTO.getType()).collect(Collectors.toList()));
-		}
+		if(Objects.nonNull(roleDTO.getParent()))
+			attributes.put("parent", Stream.of(roleDTO.getParent()).collect(Collectors.toList()));
+
 		roleToEdit.setAttributes(attributes);
 
 		return roleToEdit;
@@ -468,18 +477,18 @@ public class AdminServiceImpl implements AdminService {
 		u.setEnabled(userRepresentation.isEnabled());
 		u.setRole( getMappingsByUser(userRepresentation.getId()) );
 
-		Map<String, List<String>> attributes = userRepresentation.getAttributes();
-		if(Objects.nonNull(attributes)){
-			if(Objects.nonNull(attributes.get("gender")))
-				u.setGender( StringUtils.join(attributes.get("gender"),", ") );
-			if(Objects.nonNull(attributes.get("jobs")))
-				u.setJobs( StringUtils.join(attributes.get("jobs"),", ") );
-			if(Objects.nonNull(attributes.get("mobile")))
-				u.setMobile( StringUtils.join(attributes.get("mobile"),", ") );
-			if(Objects.nonNull(attributes.get("updateBy")))
-				u.setUpdateBy( StringUtils.join(attributes.get("updateBy"),", ") );
-			if(Objects.nonNull(attributes.get("updateAt"))){
-				Long date = new Long( attributes.get("updateAt").get(0) );
+		Map<String, List<String>> attr = userRepresentation.getAttributes();
+		if(Objects.nonNull(attr)){
+			if(Objects.nonNull(attr.get("gender")))
+				u.setGender( getAttr("gender", attr) );
+			if(Objects.nonNull(attr.get("jobs")))
+				u.setJobs( getAttr("jobs", attr) );
+			if(Objects.nonNull(attr.get("mobile")))
+				u.setMobile( getAttr("mobile", attr) );
+			if(Objects.nonNull(attr.get("updateBy")))
+				u.setUpdateBy( getAttr("updateBy", attr) );
+			if(Objects.nonNull(attr.get("updateAt"))){
+				Long date = new Long( attr.get("updateAt").get(0) );
 				u.setUpdateAt( new Date(date) );
 			}
 
@@ -495,20 +504,20 @@ public class AdminServiceImpl implements AdminService {
 		r.setDescription( roleRepresentation.getDescription() );
 		r.setClientRole( roleRepresentation.getClientRole() );
 
-		Map<String, List<String>> attributes = roleRepresentation.getAttributes();
-		if(Objects.nonNull(attributes)){
-			if(Objects.nonNull(attributes.get("displayName")))
-				r.setDisplayName( StringUtils.join(attributes.get("displayName"),", ") );
-			if(Objects.nonNull(attributes.get("index")))
-				r.setIndex( StringUtils.join(attributes.get("index"),", ") );
-			if(Objects.nonNull(attributes.get("icon")))
-				r.setIcon( StringUtils.join(attributes.get("icon"),", ") );
-			if(Objects.nonNull(attributes.get("url")))
-				r.setUrl( StringUtils.join(attributes.get("url"),", ") );
-			if(Objects.nonNull(attributes.get("type"))){
-				r.setType( StringUtils.join(attributes.get("type"),", ") );
-			}
-
+		Map<String, List<String>> attr = roleRepresentation.getAttributes();
+		if(Objects.nonNull(attr)){
+			if(Objects.nonNull(attr.get("displayName")))
+				r.setDisplayName( getAttr("displayName", attr) );
+			if(Objects.nonNull(attr.get("index")))
+				r.setIndex( getAttr("index", attr) );
+			if(Objects.nonNull(attr.get("icon")))
+				r.setIcon( getAttr("icon", attr) );
+			if(Objects.nonNull(attr.get("url")))
+				r.setUrl( getAttr("url", attr) );
+			if(Objects.nonNull(attr.get("type")))
+				r.setType( getAttr("type", attr) );
+			if(Objects.nonNull(attr.get("parent")))
+				r.setType( getAttr("parent", attr) );
 		}
 		return r;
 	}
@@ -588,4 +597,76 @@ public class AdminServiceImpl implements AdminService {
 
 		return m;
 	}
+
+	/**
+	 * 角色条件查询
+	 *
+	 * @param role
+     * @param conditions
+	 * @return boolean
+	 * @author apr
+	 * @date 2021/10/19 9:56
+	 */
+	private boolean matchRole(RoleRepresentation role, RoleDTO conditions) {
+		if(Objects.isNull(conditions))
+			return false;
+
+		Map<String, List<String>> attr = role.getAttributes();
+
+		boolean idMatch = true;
+		if(Objects.nonNull(conditions.getId()))
+			idMatch = role.getId().equals(conditions.getId());
+
+		boolean nameMatch = true;
+		if(Objects.nonNull(conditions.getName()))
+			nameMatch = role.getName().equals(conditions.getName());
+
+		boolean descMatch = true;
+		if(Objects.nonNull(conditions.getDescription()))
+			descMatch = role.getDescription().indexOf(conditions.getDescription())!= -1;
+
+		boolean displayMatch = true;
+		if(Objects.nonNull(conditions.getDisplayName()))
+			displayMatch = getAttr("displayName", attr).indexOf(conditions.getDisplayName()) != -1;
+
+		boolean indexMatch = true;
+		if(Objects.nonNull(conditions.getIndex()))
+			indexMatch = getAttr("index", attr).equals(conditions.getIndex());
+
+		boolean iconMatch = true;
+		if(Objects.nonNull(conditions.getIcon()))
+			iconMatch = getAttr("icon", attr).equals(conditions.getIcon());
+
+		boolean urlMatch = true;
+		if(Objects.nonNull(conditions.getUrl()))
+			urlMatch = getAttr("url", attr).equals(conditions.getUrl());
+
+		boolean typeMatch = true;
+		if(Objects.nonNull(conditions.getType()))
+			typeMatch = getAttr("type", attr).equals(conditions.getType());
+
+		boolean parentMatch = true;
+		if(Objects.nonNull(conditions.getParent()))
+			parentMatch = getAttr("parent", attr).equals(conditions.getParent());
+
+		return idMatch&&nameMatch&&descMatch&&displayMatch&&indexMatch&&iconMatch&&urlMatch&&typeMatch&&parentMatch;
+	}
+
+	private String getAttr(String attrName, Map<String, List<String>> attributes){
+		String attr = "";
+		if(Objects.nonNull(attrName) && Objects.nonNull(attributes))
+			attr = StringUtils.join(attributes.get(attrName),", ");
+
+		return Optional.ofNullable(attr).orElse("");
+	}
+
+	private List<RoleRepresentation> getAllRoles(){
+		RolesResource rolesResource = getKeycloakRoleResource();
+		List<RoleRepresentation> roleRepresentations = rolesResource.list();
+		return roleRepresentations.stream()
+				.map(rr -> rolesResource.get(rr.getName()).toRepresentation())
+				.collect(Collectors.toList());
+	}
+
 }
+

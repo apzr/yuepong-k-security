@@ -248,15 +248,25 @@ public class MainController {
 	/**
 	 * 查询角色
 	 *
-	 * @param rid
+	 * @param roleName
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/role/{rid}")
-	public ResponseEntity<?> getRole(@PathVariable String rid) {
+	@GetMapping(value = "/role/{roleName}")
+	public ResponseEntity<?> getRole(@PathVariable String roleName) {
 		try {
-			RoleDTO result = adminService.getRole(rid);
+			RoleDTO result = adminService.getRole(roleName);
+			return ResponseResult.success("请求成功", result).response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+	@PostMapping(value = "/role")
+	public ResponseEntity<?> getRole(@RequestBody RoleDTO roleDTO) {
+		try {
+			List<RoleDTO> result = adminService.getRole(roleDTO);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
