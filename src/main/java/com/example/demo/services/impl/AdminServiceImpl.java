@@ -238,7 +238,6 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<RoleDTO> getRole(RoleDTO conditions) {
-		RolesResource rolesResource = getKeycloakRoleResource();
 		List<RoleRepresentation> roles = getAllRoles();
 		List<RoleRepresentation> filterRoles = roles.stream()
 				.filter(role -> matchRole(role, conditions))
@@ -249,7 +248,6 @@ public class AdminServiceImpl implements AdminService {
 
 	@Override
 	public List<RoleDTO> listRoles() {
-		RolesResource rolesResource = getKeycloakRoleResource();
 		List<RoleRepresentation> roleRepresentations = getAllRoles();
 		return roleRepresentations.stream().map(roleRepresentation -> convertRole(roleRepresentation)).collect(Collectors.toList());
 	}
@@ -517,7 +515,7 @@ public class AdminServiceImpl implements AdminService {
 			if(Objects.nonNull(attr.get("type")))
 				r.setType( getAttr("type", attr) );
 			if(Objects.nonNull(attr.get("parent")))
-				r.setType( getAttr("parent", attr) );
+				r.setParent( getAttr("parent", attr) );
 		}
 		return r;
 	}
