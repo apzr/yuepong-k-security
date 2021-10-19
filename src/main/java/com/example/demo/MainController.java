@@ -1,9 +1,6 @@
 package com.example.demo;
 
-import com.example.demo.dto.GroupMappingDTO;
-import com.example.demo.dto.MappingDTO;
-import com.example.demo.dto.RoleDTO;
-import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.*;
 import com.example.demo.services.AdminService;
 import com.yuepong.jdev.api.bean.ResponseResult;
 import com.yuepong.jdev.code.CodeMsgs;
@@ -312,6 +309,17 @@ public class MainController {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
 	}
+
+	@PostMapping(value = "/mapping/createMany")
+	public ResponseEntity<?> createMapping(@RequestBody MappingsDTO mappingsDTO) {
+		try {
+			adminService.createMapping(mappingsDTO);
+			return ResponseResult.success().response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
 
 	/**
 	 * deleteMapping

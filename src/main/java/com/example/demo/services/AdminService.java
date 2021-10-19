@@ -181,7 +181,7 @@ public interface AdminService {
      * @date 2021/9/26 11:19
      */
     int createMapping(MappingDTO mappingDTO) ;
-
+    int createMapping(MappingsDTO mappingsDTO);
 
     /**
      * 删除角色用户映射

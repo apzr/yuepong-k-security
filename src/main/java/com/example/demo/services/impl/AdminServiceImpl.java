@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -272,6 +273,20 @@ public class AdminServiceImpl implements AdminService {
 		}
 
 		return statusId;
+	}
+
+	@Override
+	public int createMapping(MappingsDTO mappingsDTO) {
+		AtomicInteger count = new AtomicInteger();
+		mappingsDTO.getRoleIds().stream().forEach(ms -> {
+			MappingDTO m = new MappingDTO();
+			m.setUserId(mappingsDTO.getUserId());
+			m.setRoleId(ms);
+
+			count.addAndGet(createMapping(m));
+		});
+
+		return count.get();
 	}
 
 	@Override
