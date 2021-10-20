@@ -423,7 +423,7 @@ public class MainController {
 			String groupId = groupService.create(groupDTO);
 			return ResponseResult.success("请求成功", groupId).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO.getName()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
