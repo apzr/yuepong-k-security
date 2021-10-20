@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.dto.GroupDTO;
 import com.example.demo.dto.GroupMappingDTO;
+import com.example.demo.dto.GroupMappingsDTO;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -93,7 +94,7 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 11:04
      */
-    void joinGroup(GroupMappingDTO groupMappingDTO);
+    void joinGroup(GroupMappingsDTO groupMappingsDTO);
 
     /**
      * 移除组中的用户

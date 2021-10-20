@@ -38,7 +38,7 @@ public interface RoleService {
      * @author apr
      * @date 2021/9/26 11:19
      */
-    void deleteRole(String name) ;
+    void deleteRole(String id) ;
 
     /**
      * 角色列表

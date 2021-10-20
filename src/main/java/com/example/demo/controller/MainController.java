@@ -280,13 +280,13 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@DeleteMapping(value = "/role/{name}")
-	public ResponseEntity<?> deleteRole(@PathVariable String name){
+	@DeleteMapping(value = "/role/{id}")
+	public ResponseEntity<?> deleteRole(@PathVariable String id){
 		try {
-			roleService.deleteRole(name);
+			roleService.deleteRole(id);
 			return ResponseResult.success().response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),name).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),id).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -533,18 +533,18 @@ public class MainController {
 	/**
 	 * 向组中添加用户
 	 *
-	 * @param groupMappingDTO
+	 * @param groupMappingsDTO
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/13 10:59
 	 */
     @PostMapping(value = "/group/user/join")
-	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
+	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingsDTO groupMappingsDTO) {
 		try {
-			groupService.joinGroup(groupMappingDTO);
+			groupService.joinGroup(groupMappingsDTO);
 			return ResponseResult.success().response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupMappingDTO).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupMappingsDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}

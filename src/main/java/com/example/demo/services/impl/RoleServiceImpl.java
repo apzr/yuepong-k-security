@@ -54,8 +54,8 @@ public class RoleServiceImpl implements RoleService {
 	}
 
 	@Override
-	public void deleteRole(String name) {
-		rolesResource.deleteRole(name);
+	public void deleteRole(String id) {
+		rolesByIdResource.deleteRole(id);
 	}
 
 	@Override

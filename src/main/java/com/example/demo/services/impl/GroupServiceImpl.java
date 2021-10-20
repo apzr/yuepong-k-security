@@ -2,6 +2,7 @@ package com.example.demo.services.impl;
 
 import com.example.demo.dto.GroupDTO;
 import com.example.demo.dto.GroupMappingDTO;
+import com.example.demo.dto.GroupMappingsDTO;
 import com.example.demo.services.GroupService;
 import com.yuepong.jdev.exception.BizException;
 import org.keycloak.admin.client.resource.*;
@@ -38,8 +39,19 @@ public class GroupServiceImpl implements GroupService {
 	@Autowired
 	RoleByIdResource rolesByIdResource;
 
+	@Autowired
+	RolesResource rolesResource;
+
 	@Override
 	public String create(GroupRepresentation group) {
+		//删除现有
+		GroupRepresentation conditions = new GroupRepresentation();
+		conditions.setName(group.getName());
+		GroupRepresentation g = this.search(conditions);
+		if(Objects.nonNull(g))
+			groupsResource.group(g.getId()).remove();
+
+		//新增
 		Response result = groupsResource.add(group);
 		int statusId = result.getStatus();
 		if (statusId >= 200 && statusId < 300) {
@@ -67,8 +79,11 @@ public class GroupServiceImpl implements GroupService {
 				.filter(group -> group.getName().equals(conditions.getName()))
 				.collect(Collectors.toList());
 
-		if(Objects.nonNull(resultList) && !resultList.isEmpty())
-			result = resultList.get(0);
+		if(Objects.nonNull(resultList) && !resultList.isEmpty()){
+			result = groupsResource.group(resultList.get(0).getId()).toRepresentation();
+			List<String> roleIds = result.getRealmRoles().stream().map(roleName -> getRoleIdByName(roleName)).collect(Collectors.toList());
+			result.setRealmRoles(roleIds);
+		}
 
 		return result;
 	}
@@ -97,9 +112,11 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public void joinGroup(GroupMappingDTO groupMappingDTO) {
-		UserResource userResource = usersResource.get(groupMappingDTO.getUserId());
-		userResource.joinGroup(groupMappingDTO.getGroupId());
+	public void joinGroup(GroupMappingsDTO groupMappingsDTO) {
+		groupMappingsDTO.getUserIds().stream().forEach(uid -> {
+			UserResource userResource = usersResource.get(uid);
+			userResource.joinGroup(groupMappingsDTO.getGroupId());
+		});
 	}
 
 	@Override
@@ -133,6 +150,18 @@ public class GroupServiceImpl implements GroupService {
 		}
 
 		return roleRepresentation;
+	}
+
+	private  String getRoleIdByName(String name){
+		String roleId = null;
+		try {
+			RoleResource roleResource = rolesResource.get(name);
+			roleId = roleResource.toRepresentation().getId();
+		} catch (Exception e) {
+			roleId = "";
+		}
+
+		return roleId;
 	}
 
     private  List<RoleRepresentation> getRolesByIds(List<String> ids){
