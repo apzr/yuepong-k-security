@@ -60,9 +60,17 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public GroupRepresentation getGroupByName(String group_name) {
-		List<GroupRepresentation> result = groupsResource.groups(group_name, 1, 1);
-		return Optional.ofNullable(result).orElse(new ArrayList<GroupRepresentation>()).get(0);
+	public GroupRepresentation search(GroupRepresentation conditions){
+		GroupRepresentation result = null;
+
+		List<GroupRepresentation> resultList = groupsResource.groups().stream()
+				.filter(group -> group.getName().equals(conditions.getName()))
+				.collect(Collectors.toList());
+
+		if(Objects.nonNull(resultList) && !resultList.isEmpty())
+			result = resultList.get(0);
+
+		return result;
 	}
 
 	@Override

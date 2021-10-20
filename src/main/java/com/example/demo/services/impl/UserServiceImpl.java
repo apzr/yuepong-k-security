@@ -115,7 +115,6 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -167,7 +166,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDTO> search(UserDTO conditions) {
+		List<UserRepresentation> aa = usersResource.search("id:" + conditions.getId(), 0, 2);
 		return null;
-	}
+    }
 
 }

@@ -1,11 +1,10 @@
-package com.example.demo;
+package com.example.demo.controller;
 
 import com.example.demo.dto.*;
 import com.example.demo.services.*;
 import com.yuepong.jdev.api.bean.ResponseResult;
 import com.yuepong.jdev.code.CodeMsgs;
 import com.yuepong.jdev.exception.BizException;
-import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -215,13 +214,15 @@ public class MainController {
 		}
 	}
 
-	@PostMapping(value = "/user/search")
-	public ResponseEntity<?> pageUsers(@RequestBody UserDTO user) {
+	@GetMapping(value = "/user/search")
+	public ResponseEntity<?> searchUsers(@QueryParam("id")String id, @QueryParam("name")String name) {
 		try {
-			List<UserDTO> result = userService.search(user);
+			UserDTO query = new UserDTO();
+			query.setId(id);
+			List<UserDTO> result = userService.search(query);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), id).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -467,13 +468,13 @@ public class MainController {
 		}
 	}
 
-	@GetMapping(value = "/group/name/{group_name}")
-	public ResponseEntity<?> getGroupByName(@PathVariable String group_name) {
+	@PostMapping(value = "/group/name")
+	public ResponseEntity<?> searchGroup(@RequestBody GroupRepresentation group) {
 		try {
-			GroupRepresentation result = groupService.getGroupByName(group_name);
+			GroupRepresentation result = groupService.search(group);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), group_name).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), group).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}

@@ -50,12 +50,12 @@ public interface GroupService {
     /**
      * getGroupByName
      *
-     * @param group_name
+     * @param conditions
      * @return org.keycloak.representations.idm.GroupRepresentation
      * @author apr
      * @date 2021/10/20 15:00
      */
-    GroupRepresentation getGroupByName(String group_name);
+    GroupRepresentation search(GroupRepresentation conditions);
     /**
      * 获取组角色
      *
