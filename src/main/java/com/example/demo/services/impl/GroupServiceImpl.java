@@ -39,16 +39,13 @@ public class GroupServiceImpl implements GroupService {
 
 	@Override
 	public String create(GroupDTO group) {
-		String uid = "-1";
 		Response result = groupsResource.add(group);
 		int statusId = result.getStatus();
 		if (statusId >= 200 && statusId < 300) {
-			uid = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+			return result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
 		}else {
-			throw new BizException("创建失败");
+			throw new BizException("创建失败: "+statusId);
 		}
-
-		return uid;
 	}
 
 	@Override

@@ -81,33 +81,38 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
 
     @Bean
     public Keycloak keyCloak() {
-        return KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
-				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+        return KeycloakBuilder.builder()
+                .serverUrl(AUTH_URL)
+                .realm("master")
+                .username("admin")
+                .password("admin")
+				.clientId("admin-cli")
+                .resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
 				.build();
     }
 
     @Bean
-    public RealmResource realmResource(@Autowired Keycloak keyCloak){
+    public RealmResource realmResource(Keycloak keyCloak){
         return keyCloak.realm(REALM);
     }
 
     @Bean
-    public UsersResource usersResource(@Autowired RealmResource realmResource) {
+    public UsersResource usersResource(RealmResource realmResource) {
 		return realmResource.users();
 	}
 
 	@Bean
-	public RolesResource rolesResource(@Autowired RealmResource realmResource) {
+	public RolesResource rolesResource(RealmResource realmResource) {
 		return realmResource.roles();
 	}
 
 	@Bean
-	public RoleByIdResource roleByIdResource(@Autowired RealmResource realmResource) {
+	public RoleByIdResource roleByIdResource(RealmResource realmResource) {
 		return realmResource.rolesById();
 	}
 
 	@Bean
-	public GroupsResource groupsResource(@Autowired RealmResource realmResource) {
+	public GroupsResource groupsResource(RealmResource realmResource) {
 		return realmResource.groups();
 	}
 
