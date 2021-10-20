@@ -275,7 +275,7 @@ public class MainController {
 	/**
 	 * 删除角色
 	 *
-	 * @param name
+	 * @param id
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/12 9:43
