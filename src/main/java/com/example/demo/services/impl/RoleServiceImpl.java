@@ -8,6 +8,7 @@ import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
  * @author apr
  * @date 2021/10/20 10:31:21
  **/
+@Service
 public class RoleServiceImpl implements RoleService {
 
 	@Autowired

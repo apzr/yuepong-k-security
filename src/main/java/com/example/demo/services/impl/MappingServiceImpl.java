@@ -9,6 +9,7 @@ import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  * @author apr
  * @date 2021/10/20 10:32:35
  **/
+@Service
 public class MappingServiceImpl implements MappingService {
 	@Autowired
 	RolesResource rolesResource;

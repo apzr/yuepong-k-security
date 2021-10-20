@@ -12,6 +12,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
  * @author apr
  * @date 2021/10/20 10:31:09
  **/
+@Service
 public class UserServiceImpl implements UserService {
 
 	@Autowired

@@ -23,16 +23,13 @@ import java.util.Objects;
 @CrossOrigin
 @Controller
 public class MainController {
-
-    @Resource
-	AdminService adminService;
-    @Resource
+    @Autowired
 	UserService userService;
-    @Resource
+    @Autowired
 	RoleService roleService;
-    @Resource
+    @Autowired
 	GroupService groupService;
-    @Resource
+    @Autowired
 	MappingService mappingService;
 
     @GetMapping("/")

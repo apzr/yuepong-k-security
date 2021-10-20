@@ -8,6 +8,7 @@ import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  * @author apr
  * @date 2021/10/20 10:31:32
  **/
+@Service
 public class GroupServiceImpl implements GroupService {
 
 	@Autowired
