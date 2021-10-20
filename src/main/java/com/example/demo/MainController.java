@@ -245,15 +245,15 @@ public class MainController {
 	/**
 	 * 查询角色
 	 *
-	 * @param roleName
+	 * @param role_id
 	 * @return org.springframework.http.ResponseEntity<?>
 	 * @author apr
 	 * @date 2021/10/12 9:43
 	 */
-	@GetMapping(value = "/role/{roleName}")
-	public ResponseEntity<?> getRole(@PathVariable String roleName) {
+	@GetMapping(value = "/role/{role_id}")
+	public ResponseEntity<?> getRole(@PathVariable String role_id) {
 		try {
-			RoleDTO result = adminService.getRole(roleName);
+			RoleDTO result = adminService.getRole(role_id);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -377,6 +377,17 @@ public class MainController {
     /**********************************/
     /***************MENU***************/
     /**********************************/
+    @PostMapping(value = "/group/create")
+	public ResponseEntity<?> create(@RequestBody GroupDTO groupDTO) {
+		try {
+			String groupId = adminService.create(groupDTO);
+			return ResponseResult.success("请求成功", groupId).response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+
 	@GetMapping(value = "/group/uid/{uid}")
 	public ResponseEntity<?> getGroupByUser(@PathVariable String uid) {
 		try {
@@ -436,7 +447,7 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/13 10:59
 	 */
-    @PostMapping(value = "/group/join")
+    @PostMapping(value = "/group/user/join")
 	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
 			adminService.joinGroup(groupMappingDTO);
@@ -454,10 +465,46 @@ public class MainController {
 	 * @author apr
 	 * @date 2021/10/13 10:59
 	 */
-    @PostMapping(value = "/group/leave")
+    @PostMapping(value = "/group/user/leave")
 	public ResponseEntity<?> leaveGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
 			adminService.leaveGroup(groupMappingDTO);
+			return ResponseResult.success().response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+	/**
+	 * 向组中添加角色
+	 *
+	 * @param groupDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/13 10:59
+	 */
+    @PostMapping(value = "/group/role/join")
+	public ResponseEntity<?> joinGroup(@RequestBody GroupDTO groupDTO) {
+		try {
+			adminService.joinGroup(groupDTO);
+			return ResponseResult.success().response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+	/**
+	 * 从组中移除用角色
+	 *
+	 * @param groupDTO
+	 * @return org.springframework.http.ResponseEntity<?>
+	 * @author apr
+	 * @date 2021/10/13 10:59
+	 */
+    @PostMapping(value = "/group/role/leave")
+	public ResponseEntity<?> leaveGroup(@RequestBody GroupDTO groupDTO) {
+		try {
+			adminService.leaveGroup(groupDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();

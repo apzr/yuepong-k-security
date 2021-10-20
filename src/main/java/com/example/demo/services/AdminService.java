@@ -211,6 +211,16 @@ public interface AdminService {
     List<MappingDTO> listMappings() ;
 
     /**
+     * 创建用户的组
+     *
+     * @param groupMapping 
+     * @return java.lang.String
+     * @author apr
+     * @date 2021/10/20 8:45
+     */
+    String create(GroupDTO groupMapping);
+
+    /**
      * 获取用户的组
      *
      * @param uid 
@@ -278,6 +288,26 @@ public interface AdminService {
      * @date 2021/10/13 11:24
      */
     void leaveGroup(GroupMappingDTO groupMappingDTO);
+
+    /**
+     * 向组中添加角色
+     *
+     * @param groupDTO
+     * @return void
+     * @author apr
+     * @date 2021/10/13 11:04
+     */
+    void joinGroup(GroupDTO groupDTO);
+
+    /**
+     * 移除组中的角色
+     *
+     * @param groupDTO
+     * @return void
+     * @author apr
+     * @date 2021/10/13 11:24
+     */
+    void leaveGroup(GroupDTO groupDTO);
 
 	/**
      * 登出
