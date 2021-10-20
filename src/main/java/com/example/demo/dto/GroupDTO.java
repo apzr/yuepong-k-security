@@ -17,4 +17,8 @@ import java.util.List;
 public class GroupDTO extends GroupRepresentation {
     private List<String> role_ids;
     private List<String> subGroup_ids;
+
+    public static GroupRepresentation toGroupRepresentation(){
+        return null;
+    };
 }

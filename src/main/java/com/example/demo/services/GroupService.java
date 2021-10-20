@@ -20,12 +20,12 @@ public interface GroupService {
   /**
      * 创建用户的组
      *
-     * @param groupMapping
+     * @param group
      * @return java.lang.String
      * @author apr
      * @date 2021/10/20 8:45
      */
-    String create(GroupDTO groupMapping);
+    String create(GroupRepresentation group);
 
     /**
      * 获取用户的组

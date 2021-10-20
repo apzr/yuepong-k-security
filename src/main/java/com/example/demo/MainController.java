@@ -418,12 +418,12 @@ public class MainController {
     /***************MENU***************/
     /**********************************/
     @PostMapping(value = "/group/create")
-	public ResponseEntity<?> create(@RequestBody GroupDTO groupDTO) {
+	public ResponseEntity<?> create(@RequestBody GroupRepresentation group) {
 		try {
-			String groupId = groupService.create(groupDTO);
+			String groupId = groupService.create(group);
 			return ResponseResult.success("请求成功", groupId).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO.getName()).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),group.getName()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}

@@ -38,7 +38,7 @@ public class GroupServiceImpl implements GroupService {
 	RoleByIdResource rolesByIdResource;
 
 	@Override
-	public String create(GroupDTO group) {
+	public String create(GroupRepresentation group) {
 		Response result = groupsResource.add(group);
 		int statusId = result.getStatus();
 		if (statusId >= 200 && statusId < 300) {
