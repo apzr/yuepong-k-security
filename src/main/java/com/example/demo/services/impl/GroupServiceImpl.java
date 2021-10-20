@@ -3,6 +3,7 @@ package com.example.demo.services.impl;
 import com.example.demo.dto.GroupDTO;
 import com.example.demo.dto.GroupMappingDTO;
 import com.example.demo.services.GroupService;
+import com.yuepong.jdev.exception.BizException;
 import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -43,6 +44,8 @@ public class GroupServiceImpl implements GroupService {
 		int statusId = result.getStatus();
 		if (statusId >= 200 && statusId < 300) {
 			uid = result.getLocation().getPath().replaceAll(".*/([^/]+)$", "$1");
+		}else {
+			throw new BizException("创建失败");
 		}
 
 		return uid;

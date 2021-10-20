@@ -3,7 +3,9 @@ package com.example.demo;
 import com.example.demo.dto.*;
 import com.example.demo.services.*;
 import com.yuepong.jdev.api.bean.ResponseResult;
+import com.yuepong.jdev.code.CodeMsg;
 import com.yuepong.jdev.code.CodeMsgs;
+import com.yuepong.jdev.exception.BizException;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.GroupRepresentation;
@@ -85,6 +87,7 @@ public class MainController {
 	 */
 	@PostMapping(value = "/user/create")
 	public ResponseEntity<?> create(@RequestBody UserDTO userDTO, KeycloakAuthenticationToken authentication) {
+		//TODO:error handle
 		String id;
 		try {
 			userDTO.setUpdateBy(authentication.getName());
@@ -112,6 +115,8 @@ public class MainController {
 			userDTO.setUpdateBy(authentication.getName());
 			userService.updateUser(userDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), userDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -130,6 +135,8 @@ public class MainController {
 		try {
 			String result = userService.deleteUser(uid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), uid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -148,6 +155,8 @@ public class MainController {
 		try {
 			userService.resetUser(userDTO.getId());
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), userDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -166,6 +175,8 @@ public class MainController {
 		try {
 			UserDTO user = userService.getUser(uid);
 			return ResponseResult.success("请求成功", user).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), uid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -184,6 +195,8 @@ public class MainController {
 		try {
 			List<UserDTO> result = userService.listUsers();
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -206,9 +219,10 @@ public class MainController {
 		try {
 			String role_id = roleService.createRole(roleDTO);
 			return ResponseResult.success("请求成功", role_id).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),roleDTO.getName()).response();
 		} catch (Exception ex) {
-			ResponseResult<String> err = ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR, ex.getMessage(), roleDTO.getName());
-			return ResponseResult.response(err);
+			return ResponseResult.error(ex.getMessage()).response();
 		}
 	}
 
@@ -225,6 +239,8 @@ public class MainController {
 		try {
 			roleService.updateRole(roleDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),roleDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -243,6 +259,8 @@ public class MainController {
 		try {
 			roleService.deleteRole(name);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),name).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -261,6 +279,8 @@ public class MainController {
 		try {
 			RoleDTO result = roleService.getRole(role_id);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),role_id).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -271,6 +291,8 @@ public class MainController {
 		try {
 			List<RoleDTO> result = roleService.getRole(roleDTO);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),roleDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -289,6 +311,8 @@ public class MainController {
 		try {
 			List<RoleDTO>  result = roleService.listRoles();
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -311,6 +335,8 @@ public class MainController {
 		try {
 			mappingService.createMapping(mappingDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),mappingDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -321,6 +347,8 @@ public class MainController {
 		try {
 			mappingService.createMapping(mappingsDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),mappingsDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -340,6 +368,8 @@ public class MainController {
 		try {
 			mappingService.deleteMapping(mappingDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),mappingDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -357,6 +387,8 @@ public class MainController {
 		try {
 			List<MappingDTO> result = mappingService.listMappings();
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -375,6 +407,8 @@ public class MainController {
 		try {
 			List<MappingDTO> result = mappingService.getMappingsByUser(uid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),uid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -388,6 +422,8 @@ public class MainController {
 		try {
 			String groupId = groupService.create(groupDTO);
 			return ResponseResult.success("请求成功", groupId).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -399,6 +435,8 @@ public class MainController {
 		try {
 			List<GroupRepresentation> result = groupService.getGroupsByUser(uid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),uid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -409,6 +447,8 @@ public class MainController {
 		try {
 			GroupRepresentation result = groupService.getGroupById(gid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -420,6 +460,8 @@ public class MainController {
 		try {
 			List<GroupRepresentation> result = groupService.listGroups();
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -430,6 +472,8 @@ public class MainController {
 		try {
 			List<RoleRepresentation> result = groupService.getGroupRoles(gid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -440,6 +484,8 @@ public class MainController {
 		try {
 			List<UserRepresentation> result = groupService.getGroupMembers(gid);
 			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -458,6 +504,8 @@ public class MainController {
 		try {
 			groupService.joinGroup(groupMappingDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupMappingDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -476,6 +524,8 @@ public class MainController {
 		try {
 			groupService.leaveGroup(groupMappingDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupMappingDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -494,6 +544,8 @@ public class MainController {
 		try {
 			groupService.joinGroup(groupDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -512,6 +564,8 @@ public class MainController {
 		try {
 			groupService.leaveGroup(groupDTO);
 			return ResponseResult.success().response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
