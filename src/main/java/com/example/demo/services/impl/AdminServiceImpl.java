@@ -11,9 +11,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.*;
 
@@ -21,14 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * ImplBak

@@ -1,33 +1,6 @@
 package com.example.demo.services;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.example.demo.dto.*;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
-import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.GroupRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Value;
-
-import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * KeyCloakAdminService

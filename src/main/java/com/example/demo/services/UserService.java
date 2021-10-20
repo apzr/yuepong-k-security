@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.UserDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -72,4 +71,22 @@ public interface UserService {
      * @date 2021/9/26 11:19
      */
      List<UserDTO> listUsers() ;
+
+    /**
+     * 用户列表(分页)
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+     List<UserDTO> pageUsers(String start, String size) ;
+
+    /**
+     * 用户列表(条件查询)
+     *
+     * @return int
+     * @author apr
+     * @date 2021/9/26 11:19
+     */
+     List<UserDTO> search(UserDTO conditions) ;
 }

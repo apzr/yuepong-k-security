@@ -3,6 +3,7 @@ package com.example.demo.services.impl;
 import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.MappingsDTO;
 import com.example.demo.services.MappingService;
+import com.example.demo.util.Utils;
 import org.keycloak.admin.client.resource.RoleMappingResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UsersResource;
@@ -86,7 +87,7 @@ public class MappingServiceImpl implements MappingService {
 		RoleMappingResource roleMappingResource = usersResource.get(uid).roles();
 		List<RoleRepresentation> rm = roleMappingResource.realmLevel().listAll();
 
-		return rm.stream().map(roleRepresentation -> toMappingDto(roleRepresentation, uid)).collect(Collectors.toList());
+		return rm.stream().map(roleRepresentation -> Utils.toMapping(roleRepresentation, uid)).collect(Collectors.toList());
 	}
 
 	@Override
@@ -98,7 +99,7 @@ public class MappingServiceImpl implements MappingService {
 			List<MappingDTO> userMappings = roleMappingResource
 					.realmLevel()
 					.listAll().stream()
-					.map(roleRepresentation -> toMappingDto(roleRepresentation, userRepresentation))
+					.map(roleRepresentation -> Utils.toMapping(roleRepresentation, userRepresentation))
 					.collect(Collectors.toList());
 
 			allMappings.addAll(userMappings);
@@ -106,22 +107,5 @@ public class MappingServiceImpl implements MappingService {
 
 		return allMappings;
 	}
-
-	private MappingDTO toMappingDto(RoleRepresentation roleRepresentation, UserRepresentation user) {
-		MappingDTO m = toMappingDto(roleRepresentation, user.getId());
-		m.setUserName(user.getUsername());
-		return m;
-	}
-
-	private MappingDTO toMappingDto(RoleRepresentation roleRepresentation, String uid) {
-		MappingDTO m = new MappingDTO();
-		m.setUserId(uid);
-		m.setRoleId(roleRepresentation.getId());
-		m.setRoleName(roleRepresentation.getName());
-		m.setDescription(roleRepresentation.getDescription());
-
-		return m;
-	}
-
 
 }

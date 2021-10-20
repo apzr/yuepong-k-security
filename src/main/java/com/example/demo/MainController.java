@@ -3,24 +3,25 @@ package com.example.demo;
 import com.example.demo.dto.*;
 import com.example.demo.services.*;
 import com.yuepong.jdev.api.bean.ResponseResult;
-import com.yuepong.jdev.code.CodeMsg;
 import com.yuepong.jdev.code.CodeMsgs;
 import com.yuepong.jdev.exception.BizException;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @Controller
@@ -202,6 +203,30 @@ public class MainController {
 		}
 	}
 
+	@GetMapping(value = "/user/list/{start}/{size}")
+	public ResponseEntity<?> pageUsers(@PathVariable String start, @PathVariable String size) {
+		try {
+			List<UserDTO> result = userService.pageUsers(start, size);
+			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
+	@PostMapping(value = "/user/search")
+	public ResponseEntity<?> pageUsers(@RequestBody UserDTO user) {
+		try {
+			List<UserDTO> result = userService.search(user);
+			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
     /**********************************/
     /***************ROLE***************/
     /**********************************/
@@ -292,7 +317,7 @@ public class MainController {
 			List<RoleDTO> result = roleService.getRole(roleDTO);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),roleDTO).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR, be.getMessage(),roleDTO).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -441,6 +466,19 @@ public class MainController {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
 	}
+
+	@GetMapping(value = "/group/name/{group_name}")
+	public ResponseEntity<?> getGroupByName(@PathVariable String group_name) {
+		try {
+			GroupRepresentation result = groupService.getGroupByName(group_name);
+			return ResponseResult.success("请求成功", result).response();
+		} catch (BizException be) {
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), group_name).response();
+		} catch (Exception ex) {
+			return ResponseResult.error(ex.getMessage()).response();
+		}
+	}
+
 
 	@GetMapping(value = "/group/id/{gid}")
 	public ResponseEntity<?> getGroupById(@PathVariable String gid) {

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +57,12 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	public GroupRepresentation getGroupById(String gid) {
 		return groupsResource.group(gid).toRepresentation();
+	}
+
+	@Override
+	public GroupRepresentation getGroupByName(String group_name) {
+		List<GroupRepresentation> result = groupsResource.groups(group_name, 1, 1);
+		return Optional.ofNullable(result).orElse(new ArrayList<GroupRepresentation>()).get(0);
 	}
 
 	@Override
