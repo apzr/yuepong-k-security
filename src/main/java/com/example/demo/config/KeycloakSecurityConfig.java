@@ -1,12 +1,17 @@
 package com.example.demo.config;
 
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.adapters.KeycloakConfigResolver;
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +26,8 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
+import javax.annotation.Resource;
+
 /**
  * KeycloakSecurityConfig
  * <p>
@@ -33,6 +40,12 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
+
+	@Value("${keycloak.auth-server-url}")
+	private String AUTH_URL;
+
+	@Value("${keycloak.realm}")
+	private String REALM;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -65,4 +78,37 @@ public class KeycloakSecurityConfig extends KeycloakWebSecurityConfigurerAdapter
     public KeycloakConfigResolver KeycloakConfigResolver() {
         return new KeycloakSpringBootConfigResolver();
     }
+
+    @Bean
+    public Keycloak keyCloak() {
+        return KeycloakBuilder.builder().serverUrl(AUTH_URL).realm("master").username("admin").password("admin")
+				.clientId("admin-cli").resteasyClient(new ResteasyClientBuilder().connectionPoolSize(10).build())
+				.build();
+    }
+
+    @Bean
+    public RealmResource realmResource(@Autowired Keycloak keyCloak){
+        return keyCloak.realm(REALM);
+    }
+
+    @Bean
+    public UsersResource usersResource(@Autowired RealmResource realmResource) {
+		return realmResource.users();
+	}
+
+	@Bean
+	public RolesResource rolesResource(@Autowired RealmResource realmResource) {
+		return realmResource.roles();
+	}
+
+	@Bean
+	public RoleByIdResource roleByIdResource(@Autowired RealmResource realmResource) {
+		return realmResource.rolesById();
+	}
+
+	@Bean
+	public GroupsResource groupsResource(@Autowired RealmResource realmResource) {
+		return realmResource.groups();
+	}
+
 }

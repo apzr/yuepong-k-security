@@ -1,7 +1,7 @@
 package com.example.demo;
 
 import com.example.demo.dto.*;
-import com.example.demo.services.AdminService;
+import com.example.demo.services.*;
 import com.yuepong.jdev.api.bean.ResponseResult;
 import com.yuepong.jdev.code.CodeMsgs;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,8 +24,16 @@ import java.util.Objects;
 @Controller
 public class MainController {
 
-    @Autowired
+    @Resource
 	AdminService adminService;
+    @Resource
+	UserService userService;
+    @Resource
+	RoleService roleService;
+    @Resource
+	GroupService groupService;
+    @Resource
+	MappingService mappingService;
 
     @GetMapping("/")
     public String index(Model model) {
@@ -82,7 +91,7 @@ public class MainController {
 		String id;
 		try {
 			userDTO.setUpdateBy(authentication.getName());
-			id = adminService.createUser(userDTO);
+			id = userService.createUser(userDTO);
 		} catch (Exception ex) {
 			id = "-1";
 		}
@@ -104,7 +113,7 @@ public class MainController {
 	public ResponseEntity<?> edit(@RequestBody UserDTO userDTO, KeycloakAuthenticationToken authentication) {
 		try {
 			userDTO.setUpdateBy(authentication.getName());
-			adminService.updateUser(userDTO);
+			userService.updateUser(userDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -122,7 +131,7 @@ public class MainController {
 	@DeleteMapping(value = "/user/{uid}")
 	public ResponseEntity<?> deleteUser(@PathVariable String uid) {
 		try {
-			String result = adminService.deleteUser(uid);
+			String result = userService.deleteUser(uid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -140,7 +149,7 @@ public class MainController {
 	@PostMapping(value = "/user/reset")
 	public ResponseEntity<?> resetUser(@RequestBody UserDTO userDTO) {
 		try {
-			adminService.resetUser(userDTO.getId());
+			userService.resetUser(userDTO.getId());
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -158,7 +167,7 @@ public class MainController {
 	@GetMapping(value = "/user/{uid}")
 	public ResponseEntity<?> getUser(@PathVariable String uid) {
 		try {
-			UserDTO user = adminService.getUser(uid);
+			UserDTO user = userService.getUser(uid);
 			return ResponseResult.success("请求成功", user).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -176,7 +185,7 @@ public class MainController {
 	@GetMapping(value = "/user/list")
 	public ResponseEntity<?> listUsers() {
 		try {
-			List<UserDTO> result = adminService.listUsers();
+			List<UserDTO> result = userService.listUsers();
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -198,7 +207,7 @@ public class MainController {
 	@PostMapping(value = "/role/create")
 	public ResponseEntity<?> create(@RequestBody RoleDTO roleDTO) {
 		try {
-			String role_id = adminService.createRole(roleDTO);
+			String role_id = roleService.createRole(roleDTO);
 			return ResponseResult.success("请求成功", role_id).response();
 		} catch (Exception ex) {
 			ResponseResult<String> err = ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR, ex.getMessage(), roleDTO.getName());
@@ -217,7 +226,7 @@ public class MainController {
 	@PostMapping(value = "/role/edit")
 	public ResponseEntity<?> edit(@RequestBody RoleDTO roleDTO) {
 		try {
-			adminService.updateRole(roleDTO);
+			roleService.updateRole(roleDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -235,7 +244,7 @@ public class MainController {
 	@DeleteMapping(value = "/role/{name}")
 	public ResponseEntity<?> deleteRole(@PathVariable String name){
 		try {
-			adminService.deleteRole(name);
+			roleService.deleteRole(name);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -253,7 +262,7 @@ public class MainController {
 	@GetMapping(value = "/role/{role_id}")
 	public ResponseEntity<?> getRole(@PathVariable String role_id) {
 		try {
-			RoleDTO result = adminService.getRole(role_id);
+			RoleDTO result = roleService.getRole(role_id);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -263,7 +272,7 @@ public class MainController {
 	@PostMapping(value = "/role")
 	public ResponseEntity<?> getRole(@RequestBody RoleDTO roleDTO) {
 		try {
-			List<RoleDTO> result = adminService.getRole(roleDTO);
+			List<RoleDTO> result = roleService.getRole(roleDTO);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -281,7 +290,7 @@ public class MainController {
 	@GetMapping(value = "/role/list")
 	public ResponseEntity<?> listRoles() {
 		try {
-			List<RoleDTO>  result = adminService.listRoles();
+			List<RoleDTO>  result = roleService.listRoles();
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -303,7 +312,7 @@ public class MainController {
     @PostMapping(value = "/mapping/create")
 	public ResponseEntity<?> createMapping(@RequestBody MappingDTO mappingDTO) {
 		try {
-			adminService.createMapping(mappingDTO);
+			mappingService.createMapping(mappingDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -313,7 +322,7 @@ public class MainController {
 	@PostMapping(value = "/mapping/createMany")
 	public ResponseEntity<?> createMapping(@RequestBody MappingsDTO mappingsDTO) {
 		try {
-			adminService.createMapping(mappingsDTO);
+			mappingService.createMapping(mappingsDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -332,7 +341,7 @@ public class MainController {
     @DeleteMapping(value = "/mapping/delete")
 	public ResponseEntity<?> deleteMapping(@RequestBody MappingDTO mappingDTO) {
 		try {
-			adminService.deleteMapping(mappingDTO);
+			mappingService.deleteMapping(mappingDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -349,7 +358,7 @@ public class MainController {
 	@GetMapping(value = "/mapping/list")
 	public ResponseEntity<?> listMappings() {
 		try {
-			List<MappingDTO> result = adminService.listMappings();
+			List<MappingDTO> result = mappingService.listMappings();
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -367,7 +376,7 @@ public class MainController {
 	@GetMapping(value = "/mapping/{uid}")
 	public ResponseEntity<?> getRolesByUser(@PathVariable String uid) {
 		try {
-			List<MappingDTO> result = adminService.getMappingsByUser(uid);
+			List<MappingDTO> result = mappingService.getMappingsByUser(uid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -380,7 +389,7 @@ public class MainController {
     @PostMapping(value = "/group/create")
 	public ResponseEntity<?> create(@RequestBody GroupDTO groupDTO) {
 		try {
-			String groupId = adminService.create(groupDTO);
+			String groupId = groupService.create(groupDTO);
 			return ResponseResult.success("请求成功", groupId).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -391,7 +400,7 @@ public class MainController {
 	@GetMapping(value = "/group/uid/{uid}")
 	public ResponseEntity<?> getGroupByUser(@PathVariable String uid) {
 		try {
-			List<GroupRepresentation> result = adminService.getGroupsByUser(uid);
+			List<GroupRepresentation> result = groupService.getGroupsByUser(uid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -401,7 +410,7 @@ public class MainController {
 	@GetMapping(value = "/group/id/{gid}")
 	public ResponseEntity<?> getGroupById(@PathVariable String gid) {
 		try {
-			GroupRepresentation result = adminService.getGroupById(gid);
+			GroupRepresentation result = groupService.getGroupById(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -412,7 +421,7 @@ public class MainController {
 	@GetMapping(value = "/group/list")
 	public ResponseEntity<?> listGroups() {
 		try {
-			List<GroupRepresentation> result = adminService.listGroups();
+			List<GroupRepresentation> result = groupService.listGroups();
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -422,7 +431,7 @@ public class MainController {
 	@GetMapping(value = "/group/roles/{gid}")
 	public ResponseEntity<?> getRolesByGroupId(@PathVariable String gid) {
 		try {
-			List<RoleRepresentation> result = adminService.getGroupRoles(gid);
+			List<RoleRepresentation> result = groupService.getGroupRoles(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -432,7 +441,7 @@ public class MainController {
 	@GetMapping(value = "/group/members/{gid}")
 	public ResponseEntity<?> getMembersByGroupId(@PathVariable String gid) {
 		try {
-			List<UserRepresentation> result = adminService.getGroupMembers(gid);
+			List<UserRepresentation> result = groupService.getGroupMembers(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -450,7 +459,7 @@ public class MainController {
     @PostMapping(value = "/group/user/join")
 	public ResponseEntity<?> joinGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
-			adminService.joinGroup(groupMappingDTO);
+			groupService.joinGroup(groupMappingDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -468,7 +477,7 @@ public class MainController {
     @PostMapping(value = "/group/user/leave")
 	public ResponseEntity<?> leaveGroup(@RequestBody GroupMappingDTO groupMappingDTO) {
 		try {
-			adminService.leaveGroup(groupMappingDTO);
+			groupService.leaveGroup(groupMappingDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -486,7 +495,7 @@ public class MainController {
     @PostMapping(value = "/group/role/join")
 	public ResponseEntity<?> joinGroup(@RequestBody GroupDTO groupDTO) {
 		try {
-			adminService.joinGroup(groupDTO);
+			groupService.joinGroup(groupDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
@@ -504,7 +513,7 @@ public class MainController {
     @PostMapping(value = "/group/role/leave")
 	public ResponseEntity<?> leaveGroup(@RequestBody GroupDTO groupDTO) {
 		try {
-			adminService.leaveGroup(groupDTO);
+			groupService.leaveGroup(groupDTO);
 			return ResponseResult.success().response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
