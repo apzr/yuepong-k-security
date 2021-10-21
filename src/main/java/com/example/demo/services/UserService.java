@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 
 import java.util.List;
@@ -98,5 +99,5 @@ public interface UserService {
      * @author apr
      * @date 2021/10/21 9:50
      */
-     List<UserDTO> listRoles(String uid);
+     List listRoles(String uid);
 }

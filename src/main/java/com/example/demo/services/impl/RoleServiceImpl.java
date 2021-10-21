@@ -75,7 +75,7 @@ public class RoleServiceImpl extends AdminServiceImpl implements RoleService {
 	}
 
     private  RoleRepresentation getRoleById(String id){
-		RoleRepresentation roleRepresentation = null;
+		RoleRepresentation roleRepresentation;
 		try {
 			roleRepresentation = rolesByIdResource.getRole(id);
 		} catch (Exception e) {

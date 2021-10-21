@@ -108,7 +108,7 @@ public class MappingController extends MainController {
 	 * @author apr
 	 * @date 2021/10/12 9:45
 	 */
-	@GetMapping(value = "/{uid}")
+	@GetMapping(value = "/user/{uid}")
 	public ResponseEntity<?> getRolesByUser(@PathVariable String uid) {
 		try {
 			List<MappingDTO> result = mappingService.getMappingsByUser(uid);

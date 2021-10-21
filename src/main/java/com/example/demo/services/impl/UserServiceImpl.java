@@ -1,9 +1,10 @@
 package com.example.demo.services.impl;
 
+import com.example.demo.dto.GroupDTO;
+import com.example.demo.dto.MappingDTO;
+import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
-import com.example.demo.services.AdminService;
-import com.example.demo.services.MappingService;
-import com.example.demo.services.UserService;
+import com.example.demo.services.*;
 import com.example.demo.util.Utils;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
@@ -18,7 +19,9 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * UserServiceImpl
@@ -30,6 +33,14 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class UserServiceImpl extends AdminServiceImpl implements UserService {
+	@Autowired
+	RoleService roleService;
+
+	@Autowired
+	MappingService mappingService;
+
+	@Autowired
+	GroupService groupService;
 
     @Override
 	public String createUser(UserDTO userDTO) {
@@ -159,8 +170,26 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
     }
 
 	@Override
-	public List<UserDTO> listRoles(String uid) {
-		return null;
+	public List listRoles(String uid) {
+    	//mapping
+		List<MappingDTO> mappings = mappingService.getMappingsByUser(uid);
+		List<RoleDTO> roles = mappings.stream().map(mapping -> {
+			//根据角色id获取角色对象
+			return roleService.getRole(mapping.getRoleId());
+		}).collect(Collectors.toList());
+
+		//group
+		List<GroupDTO> groups = groupService.getGroupsByUser(uid);
+		groups.stream().forEach(group -> {
+			group.getRealmRoles().forEach(realmRoleName -> {
+				RoleDTO conditions = new RoleDTO();
+				conditions.setName(realmRoleName);
+				List<RoleDTO> groupRole = roleService.getRole(conditions);
+				roles.addAll(groupRole);
+			});
+		});
+
+		return roles;
 	}
 
 }

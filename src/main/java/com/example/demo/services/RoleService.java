@@ -41,13 +41,14 @@ public interface RoleService {
     void deleteRole(String id) ;
 
     /**
-     * 角色列表
+     * getRole
      *
-     * @return int
+     * @param role_id
+     * @return com.example.demo.dto.RoleDTO
      * @author apr
-     * @date 2021/9/26 11:19
+     * @date 2021/10/21 11:37
      */
-    RoleDTO getRole(String name) ;
+    RoleDTO getRole(String role_id) ;
 
     /**
      * 角色列表

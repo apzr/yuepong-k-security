@@ -54,7 +54,8 @@ public class GroupServiceImpl extends AdminServiceImpl implements GroupService {
 	@Override
 	public List<GroupDTO> getGroupsByUser(String uid) {
 		List<GroupRepresentation> group = usersResource.get(uid).groups();
-		return group.stream().map(Utils::toGroup).collect(Collectors.toList());
+		List<GroupDTO> groupDetails = group.stream().map(g -> getGroupById(g.getId())).collect(Collectors.toList());
+		return groupDetails;
 	}
 
 	@Override

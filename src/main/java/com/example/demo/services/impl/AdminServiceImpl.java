@@ -58,9 +58,6 @@ public class AdminServiceImpl implements AdminService {
 	RoleByIdResource rolesByIdResource;
 
 	@Autowired
-	MappingService mappingService;
-
-	@Autowired
 	GroupsResource groupsResource;
 
 	public String getToken(UserCredentials userCredentials) {

@@ -184,7 +184,7 @@ public class UserController extends MainController {
 	@GetMapping(value = "/listRoles/{uid}")
 	public ResponseEntity<?> listRoles(@PathVariable String uid) {
 		try {
-			List<UserDTO> result = userService.listRoles(uid);
+			List result = userService.listRoles(uid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), uid).response();
