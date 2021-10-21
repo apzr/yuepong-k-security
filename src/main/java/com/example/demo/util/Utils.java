@@ -1,9 +1,11 @@
 package com.example.demo.util;
 
+import com.example.demo.dto.GroupDTO;
 import com.example.demo.dto.MappingDTO;
 import com.example.demo.dto.RoleDTO;
 import com.example.demo.dto.UserDTO;
 import org.apache.commons.lang.StringUtils;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
@@ -19,6 +21,85 @@ import java.util.stream.Stream;
  * @date 2021/10/20 13:58:45
  **/
 public class Utils {
+
+	public static  UserDTO toUser(UserRepresentation userRepresentation) {
+		if(Objects.isNull(userRepresentation))
+			return null;
+
+		UserDTO u = new UserDTO();
+		u.setId(userRepresentation.getId());
+		u.setUsername( userRepresentation.getUsername() );
+		u.setEmail(userRepresentation.getEmail() );
+		u.setFirstName(userRepresentation.getFirstName());
+		u.setLastName(userRepresentation.getLastName());
+		u.setEnabled(userRepresentation.isEnabled());
+		//u.setRole( mappingService.getMappingsByUser(userRepresentation.getId()) );
+
+		Map<String, List<String>> attr = userRepresentation.getAttributes();
+		if(Objects.nonNull(attr)){
+			if(Objects.nonNull(attr.get("gender")))
+				u.setGender( getAttr("gender", attr) );
+			if(Objects.nonNull(attr.get("jobs")))
+				u.setJobs( getAttr("jobs", attr) );
+			if(Objects.nonNull(attr.get("mobile")))
+				u.setMobile( getAttr("mobile", attr) );
+			if(Objects.nonNull(attr.get("updateBy")))
+				u.setUpdateBy( getAttr("updateBy", attr) );
+			if(Objects.nonNull(attr.get("updateAt"))){
+				Long date = new Long( attr.get("updateAt").get(0) );
+				u.setUpdateAt( new Date(date) );
+			}
+
+		}
+
+		return u;
+	}
+
+	public static RoleDTO toRole(RoleRepresentation roleRepresentation) {
+		if(Objects.isNull(roleRepresentation))
+			return null;
+
+		RoleDTO r = new RoleDTO();
+		r.setId( roleRepresentation.getId() );
+		r.setName( roleRepresentation.getName() );
+		r.setDescription( roleRepresentation.getDescription() );
+		r.setClientRole( roleRepresentation.getClientRole() );
+
+		Map<String, List<String>> attr = roleRepresentation.getAttributes();
+		if(Objects.nonNull(attr)){
+			if(Objects.nonNull(attr.get("displayName")))
+				r.setDisplayName( getAttr("displayName", attr) );
+			if(Objects.nonNull(attr.get("index")))
+				r.setIndex( getAttr("index", attr) );
+			if(Objects.nonNull(attr.get("icon")))
+				r.setIcon( getAttr("icon", attr) );
+			if(Objects.nonNull(attr.get("url")))
+				r.setUrl( getAttr("url", attr) );
+			if(Objects.nonNull(attr.get("type")))
+				r.setType( getAttr("type", attr) );
+			if(Objects.nonNull(attr.get("parent")))
+				r.setParent( getAttr("parent", attr) );
+		}
+		return r;
+	}
+
+	public static GroupDTO toGroup(GroupRepresentation groupRepresentation) {
+		if(Objects.isNull(groupRepresentation))
+			return null;
+
+		GroupDTO g = new GroupDTO();
+		g.setId( groupRepresentation.getId() );
+		g.setName( groupRepresentation.getName() );
+		g.setPath( groupRepresentation.getPath() );
+		g.setRealmRoles( groupRepresentation.getRealmRoles() );
+
+		Map<String, List<String>> attr = groupRepresentation.getAttributes();
+		if(Objects.nonNull(attr)){
+			if(Objects.nonNull(attr.get("type")))
+				g.setType( getAttr("type", attr) );
+		}
+		return g;
+	}
 
     public static MappingDTO toMapping(RoleRepresentation roleRepresentation, UserRepresentation user) {
 		MappingDTO m = toMapping(roleRepresentation, user.getId());
@@ -36,7 +117,7 @@ public class Utils {
 		return m;
 	}
 
-		/**
+	/**
 	 * 角色条件查询
 	 *
 	 * @param role
@@ -90,64 +171,6 @@ public class Utils {
 		return idMatch&&nameMatch&&descMatch&&displayMatch&&indexMatch&&iconMatch&&urlMatch&&typeMatch&&parentMatch;
 	}
 
-	public static RoleRepresentation copyProperty(RoleDTO roleDTO, RoleRepresentation roleToEdit) {
-		Map<String, List<String>> attributes = Optional.ofNullable(roleToEdit.getAttributes()).orElse(new HashMap<>());
-
-		//基本信息
-		if(Objects.nonNull(roleDTO.getName())){
-			roleToEdit.setName(roleDTO.getName());
-		}
-		if(Objects.nonNull(roleDTO.getDescription())){
-			roleToEdit.setDescription(roleDTO.getDescription());
-		}
-		if(Objects.nonNull(roleDTO.getClientRole())){
-			roleToEdit.setClientRole(roleDTO.getClientRole());
-		}
-
-		//attr
-		if(Objects.nonNull(roleDTO.getDisplayName()))
-			attributes.put("displayName", Stream.of(roleDTO.getDisplayName()).collect(Collectors.toList()));
-		if(Objects.nonNull(roleDTO.getIndex()))
-			attributes.put("index", Stream.of(roleDTO.getIndex()).collect(Collectors.toList()));
-		if(Objects.nonNull(roleDTO.getIcon()))
-			attributes.put("icon", Stream.of(roleDTO.getIcon()).collect(Collectors.toList()));
-		if(Objects.nonNull(roleDTO.getUrl()))
-			attributes.put("url", Stream.of(roleDTO.getUrl()).collect(Collectors.toList()));
-		if(Objects.nonNull(roleDTO.getType()))
-			attributes.put("type", Stream.of(roleDTO.getType()).collect(Collectors.toList()));
-		if(Objects.nonNull(roleDTO.getParent()))
-			attributes.put("parent", Stream.of(roleDTO.getParent()).collect(Collectors.toList()));
-
-		roleToEdit.setAttributes(attributes);
-
-		return roleToEdit;
-	}
-
-	public static RoleDTO toRole(RoleRepresentation roleRepresentation) {
-		RoleDTO r = new RoleDTO();
-		r.setId( roleRepresentation.getId() );
-		r.setName( roleRepresentation.getName() );
-		r.setDescription( roleRepresentation.getDescription() );
-		r.setClientRole( roleRepresentation.getClientRole() );
-
-		Map<String, List<String>> attr = roleRepresentation.getAttributes();
-		if(Objects.nonNull(attr)){
-			if(Objects.nonNull(attr.get("displayName")))
-				r.setDisplayName( getAttr("displayName", attr) );
-			if(Objects.nonNull(attr.get("index")))
-				r.setIndex( getAttr("index", attr) );
-			if(Objects.nonNull(attr.get("icon")))
-				r.setIcon( getAttr("icon", attr) );
-			if(Objects.nonNull(attr.get("url")))
-				r.setUrl( getAttr("url", attr) );
-			if(Objects.nonNull(attr.get("type")))
-				r.setType( getAttr("type", attr) );
-			if(Objects.nonNull(attr.get("parent")))
-				r.setParent( getAttr("parent", attr) );
-		}
-		return r;
-	}
-
 	public static UserRepresentation copyProperty(UserDTO userDTO, UserRepresentation userToEdit) {
 		Map<String, List<String>> attributes = Optional.ofNullable(userToEdit.getAttributes()).orElse(new HashMap<>());
 
@@ -189,34 +212,80 @@ public class Utils {
 		return userToEdit;
 	}
 
-	public static  UserDTO toUser(UserRepresentation userRepresentation) {
-		UserDTO u = new UserDTO();
-		u.setId(userRepresentation.getId());
-		u.setUsername( userRepresentation.getUsername() );
-		u.setEmail(userRepresentation.getEmail() );
-		u.setFirstName(userRepresentation.getFirstName());
-		u.setLastName(userRepresentation.getLastName());
-		u.setEnabled(userRepresentation.isEnabled());
-		//u.setRole( mappingService.getMappingsByUser(userRepresentation.getId()) );
+	public static RoleRepresentation copyProperty(RoleDTO roleDTO, RoleRepresentation roleToEdit) {
+		Map<String, List<String>> attributes = Optional.ofNullable(roleToEdit.getAttributes()).orElse(new HashMap<>());
 
-		Map<String, List<String>> attr = userRepresentation.getAttributes();
-		if(Objects.nonNull(attr)){
-			if(Objects.nonNull(attr.get("gender")))
-				u.setGender( getAttr("gender", attr) );
-			if(Objects.nonNull(attr.get("jobs")))
-				u.setJobs( getAttr("jobs", attr) );
-			if(Objects.nonNull(attr.get("mobile")))
-				u.setMobile( getAttr("mobile", attr) );
-			if(Objects.nonNull(attr.get("updateBy")))
-				u.setUpdateBy( getAttr("updateBy", attr) );
-			if(Objects.nonNull(attr.get("updateAt"))){
-				Long date = new Long( attr.get("updateAt").get(0) );
-				u.setUpdateAt( new Date(date) );
-			}
-
+		//基本信息
+		if(Objects.nonNull(roleDTO.getName())){
+			roleToEdit.setName(roleDTO.getName());
+		}
+		if(Objects.nonNull(roleDTO.getDescription())){
+			roleToEdit.setDescription(roleDTO.getDescription());
+		}
+		if(Objects.nonNull(roleDTO.getClientRole())){
+			roleToEdit.setClientRole(roleDTO.getClientRole());
 		}
 
-		return u;
+		//attr
+		if(Objects.nonNull(roleDTO.getDisplayName()))
+			attributes.put("displayName", Stream.of(roleDTO.getDisplayName()).collect(Collectors.toList()));
+		if(Objects.nonNull(roleDTO.getIndex()))
+			attributes.put("index", Stream.of(roleDTO.getIndex()).collect(Collectors.toList()));
+		if(Objects.nonNull(roleDTO.getIcon()))
+			attributes.put("icon", Stream.of(roleDTO.getIcon()).collect(Collectors.toList()));
+		if(Objects.nonNull(roleDTO.getUrl()))
+			attributes.put("url", Stream.of(roleDTO.getUrl()).collect(Collectors.toList()));
+		if(Objects.nonNull(roleDTO.getType()))
+			attributes.put("type", Stream.of(roleDTO.getType()).collect(Collectors.toList()));
+		if(Objects.nonNull(roleDTO.getParent()))
+			attributes.put("parent", Stream.of(roleDTO.getParent()).collect(Collectors.toList()));
+
+		roleToEdit.setAttributes(attributes);
+
+		return roleToEdit;
+	}
+
+	public static GroupRepresentation copyProperty(GroupDTO groupDTO, GroupRepresentation groupRep) {
+		Map<String, List<String>> attributes = Optional.ofNullable(groupRep.getAttributes()).orElse(new HashMap<>());
+
+		//基本信息
+		if(Objects.nonNull(groupDTO.getId())){
+			groupRep.setId(groupDTO.getId());
+		}
+		if(Objects.nonNull(groupDTO.getName())){
+			groupRep.setName(groupDTO.getName());
+		}
+		if(Objects.nonNull(groupDTO.getPath())){
+			groupRep.setPath(groupDTO.getPath());
+		}
+		if(Objects.nonNull(groupDTO.getRealmRoles())){
+			groupRep.setRealmRoles(groupDTO.getRealmRoles());
+		}
+
+		//attr
+		if(Objects.nonNull(groupDTO.getType()))
+			attributes.put( "type", attrStringToList(groupDTO.getType()) );
+
+		groupRep.setAttributes(attributes);
+
+		return groupRep;
+	}
+
+	public static Boolean filterByName(GroupDTO conditions, GroupRepresentation groupRep){
+		Boolean nameMatch = Boolean.TRUE;
+		if( Objects.nonNull( conditions.getName() ) ){
+			nameMatch = conditions.getName().equals(groupRep.getName());
+		}
+		return nameMatch;
+	}
+
+	public static Boolean filterByType(GroupDTO conditions, GroupDTO groupRep){
+		Boolean typeMatch = Boolean.TRUE;
+		if( Objects.nonNull( conditions.getType() ) ){
+			typeMatch = conditions.getType().equals( groupRep.getType() );
+		}
+
+		return typeMatch;
 	}
 
 	public static String getAttr(String attrName, Map<String, List<String>> attributes){
@@ -225,6 +294,10 @@ public class Utils {
 			attr = StringUtils.join(attributes.get(attrName),", ");
 
 		return Optional.ofNullable(attr).orElse("");
+	}
+
+	public static List<String> attrStringToList(String attrName){
+		return Stream.of(attrName).collect(Collectors.toList());
 	}
 
 	public static String getMessage(int httpStatusCode) {

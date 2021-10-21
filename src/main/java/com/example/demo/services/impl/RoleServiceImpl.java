@@ -65,13 +65,13 @@ public class RoleServiceImpl extends AdminServiceImpl implements RoleService {
 				.filter(role -> Utils.matchRole(role, conditions))
 				.collect(Collectors.toList());
 
-		return filterRoles.stream().map(role -> Utils.toRole(role)).collect(Collectors.toList());
+		return filterRoles.stream().map(Utils::toRole).collect(Collectors.toList());
 	}
 
 	@Override
 	public List<RoleDTO> listRoles() {
 		List<RoleRepresentation> roleRepresentations = getAllRoles();
-		return roleRepresentations.stream().map(roleRepresentation -> Utils.toRole(roleRepresentation)).collect(Collectors.toList());
+		return roleRepresentations.stream().map(Utils::toRole).collect(Collectors.toList());
 	}
 
     private  RoleRepresentation getRoleById(String id){

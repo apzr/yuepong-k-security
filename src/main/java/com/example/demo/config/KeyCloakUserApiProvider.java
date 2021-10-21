@@ -42,7 +42,7 @@ public class KeyCloakUserApiProvider implements RealmResourceProvider {
     public List<UserDTO> searchUsersByAttribute(@DefaultValue(defaultAttr) @QueryParam("attr") String attr,
                                                 @QueryParam("value") String value) {
         return session.users().searchForUserByUserAttribute(attr, value, session.getContext().getRealm())
-                .stream().map(e -> userMapper.mapToUserDto(e)).collect(Collectors.toList());
+                .stream().map(UserMapper::mapToUserDto).collect(Collectors.toList());
     }
 }
  **/

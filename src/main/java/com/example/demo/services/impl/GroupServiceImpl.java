@@ -1,22 +1,19 @@
 package com.example.demo.services.impl;
 
-import com.example.demo.dto.GroupDTO;
-import com.example.demo.dto.GroupMappingDTO;
-import com.example.demo.dto.GroupMappingsDTO;
+import com.example.demo.dto.*;
 import com.example.demo.services.GroupService;
+import com.example.demo.util.Utils;
 import com.yuepong.jdev.exception.BizException;
 import org.keycloak.admin.client.resource.*;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,15 +28,16 @@ import java.util.stream.Collectors;
 public class GroupServiceImpl extends AdminServiceImpl implements GroupService {
 
 	@Override
-	public String create(GroupRepresentation group) {
+	public String create(GroupDTO groupDTO) {
 		//删除现有
-		GroupRepresentation conditions = new GroupRepresentation();
-		conditions.setName(group.getName());
-		GroupRepresentation g = this.search(conditions);
-		if(Objects.nonNull(g))
-			groupsResource.group(g.getId()).remove();
+		GroupDTO conditions = new GroupDTO();
+		conditions.setName(groupDTO.getName());
+		List<GroupDTO> g = this.search(conditions);
+		if(Objects.nonNull(g) && !g.isEmpty())
+			groupsResource.group(g.get(0).getId()).remove();
 
 		//新增
+		GroupRepresentation group = Utils.copyProperty(groupDTO, new GroupRepresentation());
 		Response result = groupsResource.add(group);
 		int statusId = result.getStatus();
 		if (statusId >= 200 && statusId < 300) {
@@ -50,48 +48,60 @@ public class GroupServiceImpl extends AdminServiceImpl implements GroupService {
 	}
 
 	@Override
-	public List<GroupRepresentation> getGroupsByUser(String uid) {
-		return usersResource.get(uid).groups();
+	public List<GroupDTO> getGroupsByUser(String uid) {
+		List<GroupRepresentation> group = usersResource.get(uid).groups();
+		return group.stream().map(Utils::toGroup).collect(Collectors.toList());
 	}
 
 	@Override
-	public GroupRepresentation getGroupById(String gid) {
-		return groupsResource.group(gid).toRepresentation();
+	public GroupDTO getGroupById(String gid) {
+		GroupRepresentation g = groupsResource.group(gid).toRepresentation();
+		return Utils.toGroup(g);
 	}
 
 	@Override
-	public GroupRepresentation search(GroupRepresentation conditions){
-		GroupRepresentation result = null;
+	public List<GroupDTO> search(GroupDTO conditions){
+		GroupRepresentation groupDTO = null;
 
 		List<GroupRepresentation> resultList = groupsResource.groups().stream()
-				.filter(group -> group.getName().equals(conditions.getName()))
+				.filter(group -> Utils.filterByName(conditions, group))
+				.filter(result -> {
+					GroupDTO g = getGroupById(result.getId());
+					return Utils.filterByType(conditions, g);
+				})
 				.collect(Collectors.toList());
 
-		if(Objects.nonNull(resultList) && !resultList.isEmpty()){
-			result = groupsResource.group(resultList.get(0).getId()).toRepresentation();
-			List<String> roleIds = result.getRealmRoles().stream().map(roleName -> getRoleIdByName(roleName)).collect(Collectors.toList());
-			result.setRealmRoles(roleIds);
+		//roll
+		if(Objects.nonNull(resultList) ){
+			return resultList.stream().map(rl -> {
+				GroupRepresentation groupTmp = groupsResource.group(rl.getId()).toRepresentation();
+				List<String> roleIds = groupTmp.getRealmRoles().stream().map(roleName -> getRoleIdByName(roleName)).collect(Collectors.toList());
+				groupTmp.setRealmRoles(roleIds);
+				return groupTmp;
+			}).map(Utils::toGroup).collect(Collectors.toList());
 		}
 
-		return result;
+		return null;
 	}
 
 	@Override
-	public List<RoleRepresentation> getGroupRoles(String gid) {
+	public List<RoleDTO> getGroupRoles(String gid) {
 		RoleMappingResource rolesResource = groupsResource.group(gid).roles();
-		return rolesResource.realmLevel().listAll();
+		List<RoleRepresentation> roles = rolesResource.realmLevel().listAll();
+		return roles.stream().map(Utils::toRole).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<UserRepresentation> getGroupMembers(String gid) {
-		return groupsResource.group(gid).members();
+	public List<UserDTO> getGroupMembers(String gid) {
+		List<UserRepresentation> users = groupsResource.group(gid).members();
+		return users.stream().map(Utils::toUser).collect(Collectors.toList());
 	}
 
 	@Override
-	public List<GroupRepresentation> listGroups() {
-		List<GroupRepresentation> gs = new ArrayList<GroupRepresentation>();
+	public List<GroupDTO> listGroups() {
+		List<GroupDTO> gs = new ArrayList();
 		groupsResource.groups().stream().forEach(group -> {
-			GroupRepresentation gr = getGroupById(group.getId());
+			GroupDTO gr = getGroupById(group.getId());
 			gs.add(gr);
 		});
 		//return groupsResource.groups(); //lazy

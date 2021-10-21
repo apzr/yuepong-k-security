@@ -32,12 +32,12 @@ import java.util.List;
 public class GroupController extends MainController {
 
     @PostMapping(value = "/create")
-	public ResponseEntity<?> create(@RequestBody GroupRepresentation group) {
+	public ResponseEntity<?> create(@RequestBody GroupDTO groupDTO) {
 		try {
-			String groupId = groupService.create(group);
+			String groupId = groupService.create(groupDTO);
 			return ResponseResult.success("请求成功", groupId).response();
 		} catch (BizException be) {
-			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),group.getName()).response();
+			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),groupDTO.getName()).response();
 		} catch (Exception ex) {
 			return ResponseResult.error(ex.getMessage()).response();
 		}
@@ -47,7 +47,7 @@ public class GroupController extends MainController {
 	@GetMapping(value = "/uid/{uid}")
 	public ResponseEntity<?> getGroupByUser(@PathVariable String uid) {
 		try {
-			List<GroupRepresentation> result = groupService.getGroupsByUser(uid);
+			List<GroupDTO> result = groupService.getGroupsByUser(uid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),uid).response();
@@ -56,10 +56,10 @@ public class GroupController extends MainController {
 		}
 	}
 
-	@PostMapping(value = "/name")
-	public ResponseEntity<?> searchGroup(@RequestBody GroupRepresentation group) {
+	@PostMapping(value = "/search")
+	public ResponseEntity<?> searchGroup(@RequestBody GroupDTO group) {
 		try {
-			GroupRepresentation result = groupService.search(group);
+			List<GroupDTO> result = groupService.search(group);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(), group).response();
@@ -72,7 +72,7 @@ public class GroupController extends MainController {
 	@GetMapping(value = "/id/{gid}")
 	public ResponseEntity<?> getGroupById(@PathVariable String gid) {
 		try {
-			GroupRepresentation result = groupService.getGroupById(gid);
+			GroupDTO result = groupService.getGroupById(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();
@@ -85,7 +85,7 @@ public class GroupController extends MainController {
 	@GetMapping(value = "/list")
 	public ResponseEntity<?> listGroups() {
 		try {
-			List<GroupRepresentation> result = groupService.listGroups();
+			List<GroupDTO> result = groupService.listGroups();
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage()).response();
@@ -97,7 +97,7 @@ public class GroupController extends MainController {
 	@GetMapping(value = "/roles/{gid}")
 	public ResponseEntity<?> getRolesByGroupId(@PathVariable String gid) {
 		try {
-			List<RoleRepresentation> result = groupService.getGroupRoles(gid);
+			List<RoleDTO> result = groupService.getGroupRoles(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();
@@ -109,7 +109,7 @@ public class GroupController extends MainController {
 	@GetMapping(value = "/members/{gid}")
 	public ResponseEntity<?> getMembersByGroupId(@PathVariable String gid) {
 		try {
-			List<UserRepresentation> result = groupService.getGroupMembers(gid);
+			List<UserDTO> result = groupService.getGroupMembers(gid);
 			return ResponseResult.success("请求成功", result).response();
 		} catch (BizException be) {
 			return ResponseResult.obtain(CodeMsgs.SERVICE_BASE_ERROR,be.getMessage(),gid).response();

@@ -1,8 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.GroupDTO;
-import com.example.demo.dto.GroupMappingDTO;
-import com.example.demo.dto.GroupMappingsDTO;
+import com.example.demo.dto.*;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -26,7 +24,7 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/20 8:45
      */
-    String create(GroupRepresentation group);
+    String create(GroupDTO group);
 
     /**
      * 获取用户的组
@@ -36,7 +34,7 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 10:13
      */
-    List<GroupRepresentation> getGroupsByUser(String uid) ;
+    List<GroupDTO> getGroupsByUser(String uid) ;
 
     /**
      * 获取组的详情
@@ -46,17 +44,17 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 10:13
      */
-    GroupRepresentation getGroupById(String gid) ;
+    GroupDTO getGroupById(String gid) ;
 
     /**
-     * getGroupByName
+     * conditions
      *
      * @param conditions
      * @return org.keycloak.representations.idm.GroupRepresentation
      * @author apr
      * @date 2021/10/20 15:00
      */
-    GroupRepresentation search(GroupRepresentation conditions);
+    List<GroupDTO> search(GroupDTO conditions);
     /**
      * 获取组角色
      *
@@ -65,7 +63,7 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 10:39
      */
-    List<RoleRepresentation> getGroupRoles(String gid) ;
+    List<RoleDTO> getGroupRoles(String gid) ;
 
     /**
      * 获取组成员
@@ -75,7 +73,7 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 10:39
      */
-    List<UserRepresentation> getGroupMembers(String gid) ;
+    List<UserDTO> getGroupMembers(String gid) ;
 
     /**
      * 列出所有组
@@ -84,12 +82,12 @@ public interface GroupService {
      * @author apr
      * @date 2021/10/13 10:23
      */
-    List<GroupRepresentation> listGroups();
+    List<GroupDTO> listGroups();
 
     /**
      * 向组中添加用户
      *
-     * @param groupMappingDTO
+     * @param groupMappingsDTO
      * @return void
      * @author apr
      * @date 2021/10/13 11:04
