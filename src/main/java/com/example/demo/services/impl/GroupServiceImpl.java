@@ -28,19 +28,7 @@ import java.util.stream.Collectors;
  * @date 2021/10/20 10:31:32
  **/
 @Service
-public class GroupServiceImpl implements GroupService {
-
-	@Autowired
-	GroupsResource groupsResource;
-
-	@Autowired
-	UsersResource usersResource;
-
-	@Autowired
-	RoleByIdResource rolesByIdResource;
-
-	@Autowired
-	RolesResource rolesResource;
+public class GroupServiceImpl extends AdminServiceImpl implements GroupService {
 
 	@Override
 	public String create(GroupRepresentation group) {
@@ -91,7 +79,6 @@ public class GroupServiceImpl implements GroupService {
 	@Override
 	public List<RoleRepresentation> getGroupRoles(String gid) {
 		RoleMappingResource rolesResource = groupsResource.group(gid).roles();
-
 		return rolesResource.realmLevel().listAll();
 	}
 
@@ -153,7 +140,7 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	private  String getRoleIdByName(String name){
-		String roleId = null;
+		String roleId;
 		try {
 			RoleResource roleResource = rolesResource.get(name);
 			roleId = roleResource.toRepresentation().getId();

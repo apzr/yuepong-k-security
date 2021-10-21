@@ -2,6 +2,7 @@ package com.example.demo.services.impl;
 
 import com.example.demo.dto.*;
 import com.example.demo.services.AdminService;
+import com.example.demo.services.MappingService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -45,7 +46,22 @@ public class AdminServiceImpl implements AdminService {
 	private String REALM;
 
 	@Autowired
-	UsersResource userResource;
+	RealmResource realmResource;
+
+	@Autowired
+	UsersResource usersResource;
+
+	@Autowired
+	RolesResource rolesResource;
+
+	@Autowired
+	RoleByIdResource rolesByIdResource;
+
+	@Autowired
+	MappingService mappingService;
+
+	@Autowired
+	GroupsResource groupsResource;
 
 	public String getToken(UserCredentials userCredentials) {
 		String responseToken = null;
@@ -82,7 +98,7 @@ public class AdminServiceImpl implements AdminService {
 
 	// after logout user from the keycloak system. No new access token will be issued.
 	public void logoutUser(String userId) {
-		userResource.get(userId).logout();
+		usersResource.get(userId).logout();
 	}
 
 	// Reset passowrd
@@ -94,7 +110,7 @@ public class AdminServiceImpl implements AdminService {
 		passwordCred.setValue(newPassword.toString().trim());
 
 		// Set password credential
-		userResource.get(userId).resetPassword(passwordCred);
+		usersResource.get(userId).resetPassword(passwordCred);
 
 	}
 

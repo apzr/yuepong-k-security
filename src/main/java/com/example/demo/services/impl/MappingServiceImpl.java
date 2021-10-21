@@ -26,12 +26,7 @@ import java.util.stream.Collectors;
  * @date 2021/10/20 10:32:35
  **/
 @Service
-public class MappingServiceImpl implements MappingService {
-	@Autowired
-	RolesResource rolesResource;
-
-	@Autowired
-	UsersResource usersResource;
+public class MappingServiceImpl extends AdminServiceImpl implements MappingService {
 
 	@Override
 	public int createMapping(MappingDTO mappingDTO) {

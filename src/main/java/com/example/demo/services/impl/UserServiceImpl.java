@@ -29,19 +29,7 @@ import java.util.stream.Collectors;
  * @date 2021/10/20 10:31:09
  **/
 @Service
-public class UserServiceImpl implements UserService {
-
-	@Autowired
-	UsersResource usersResource;
-
-	@Autowired
-	RealmResource realmResource;
-
-	@Autowired
-	MappingService mappingService;
-
-	@Autowired
-	AdminService adminService;
+public class UserServiceImpl extends AdminServiceImpl implements UserService {
 
     @Override
 	public String createUser(UserDTO userDTO) {
@@ -125,7 +113,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void resetUser(String id) {
-    	adminService.resetPassword("jjy123456", id);
+    	resetPassword("jjy123456", id);
 	}
 
 	@Override
@@ -169,5 +157,10 @@ public class UserServiceImpl implements UserService {
 		List<UserRepresentation> aa = usersResource.search("id:" + conditions.getId(), 0, 2);
 		return null;
     }
+
+	@Override
+	public List<UserDTO> listRoles(String uid) {
+		return null;
+	}
 
 }

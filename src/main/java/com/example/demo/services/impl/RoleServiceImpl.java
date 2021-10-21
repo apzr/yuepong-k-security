@@ -22,13 +22,7 @@ import java.util.stream.Collectors;
  * @date 2021/10/20 10:31:21
  **/
 @Service
-public class RoleServiceImpl implements RoleService {
-
-	@Autowired
-	RolesResource rolesResource;
-
-	@Autowired
-	RoleByIdResource rolesByIdResource;
+public class RoleServiceImpl extends AdminServiceImpl implements RoleService {
 
 	@Override
 	public String createRole(RoleDTO roleDTO) {

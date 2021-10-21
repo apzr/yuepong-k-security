@@ -89,4 +89,14 @@ public interface UserService {
      * @date 2021/9/26 11:19
      */
      List<UserDTO> search(UserDTO conditions) ;
+
+    /**
+     * 查询用户的关联的角色, 组
+     *
+     * @param uid
+     * @return java.util.List<com.example.demo.dto.UserDTO>
+     * @author apr
+     * @date 2021/10/21 9:50
+     */
+     List<UserDTO> listRoles(String uid);
 }
