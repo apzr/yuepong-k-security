@@ -30,11 +30,15 @@ public class GroupServiceImpl extends AdminServiceImpl implements GroupService {
 	@Override
 	public String create(GroupDTO groupDTO) {
 		//删除现有
-		GroupDTO conditions = new GroupDTO();
-		conditions.setName(groupDTO.getName());
-		List<GroupDTO> g = this.search(conditions);
-		if(Objects.nonNull(g) && !g.isEmpty())
-			groupsResource.group(g.get(0).getId()).remove();
+		try{
+			GroupDTO conditions = new GroupDTO();
+			conditions.setName(groupDTO.getName());
+			List<GroupDTO> g = this.search(conditions);
+			if(Objects.nonNull(g) && !g.isEmpty())
+				groupsResource.group(g.get(0).getId()).remove();
+		}catch(Exception e){
+			throw new BizException("删除原有的组失败: "+e.getMessage());
+		}
 
 		//新增
 		GroupRepresentation group = Utils.copyProperty(groupDTO, new GroupRepresentation());
