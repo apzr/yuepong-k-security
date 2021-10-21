@@ -1,7 +1,7 @@
 package com.example.demo.config;
 /**
 import com.example.demo.dto.UserDTO;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.***UserModel***;
 
 import java.util.stream.Collectors;
 

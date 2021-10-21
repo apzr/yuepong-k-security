@@ -1,9 +1,6 @@
 package com.example.demo.services.impl;
 
-import com.example.demo.dto.GroupDTO;
-import com.example.demo.dto.MappingDTO;
-import com.example.demo.dto.RoleDTO;
-import com.example.demo.dto.UserDTO;
+import com.example.demo.dto.*;
 import com.example.demo.services.*;
 import com.example.demo.util.Utils;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -132,8 +129,10 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
 		UserResource userResource = usersResource.get(uid);
 		UserRepresentation userRepresentation = userResource.toRepresentation();
 		UserDTO user = Utils.toUser(userRepresentation);
-		//role
-		user.setRole( mappingService.getMappingsByUser(userRepresentation.getId()) );
+
+		List<MappingDTO> mappings = mappingService.getMappingsByUser(userRepresentation.getId());
+		List<RoleDTO> roles = getRolesByMappings(mappings);
+		user.setRole(roles);
 
 		return user;
 	}
@@ -143,7 +142,9 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
 		List<UserRepresentation> userRepresentations = usersResource.list();
 		List<UserDTO> result = userRepresentations.stream().map(userRepresentation -> {
 			UserDTO userDTO = Utils.toUser(userRepresentation);
-			userDTO.setRole(mappingService.getMappingsByUser(userRepresentation.getId()));
+			List<MappingDTO> mappings = mappingService.getMappingsByUser(userRepresentation.getId());
+			List<RoleDTO> roles = getRolesByMappings(mappings);
+			userDTO.setRole(roles);
 			return userDTO;
 		}).collect(Collectors.toList());
 		return result;
@@ -157,7 +158,9 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
 
 		List<UserDTO> result = userRepresentations.stream().map(userRepresentation -> {
 			UserDTO userDTO = Utils.toUser(userRepresentation);
-			userDTO.setRole(mappingService.getMappingsByUser(userRepresentation.getId()));
+			List<MappingDTO> mappings = mappingService.getMappingsByUser(userRepresentation.getId());
+			List<RoleDTO> roles = getRolesByMappings(mappings);
+			userDTO.setRole(roles);
 			return userDTO;
 		}).collect(Collectors.toList());
 		return result;
@@ -192,4 +195,13 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
 		return roles;
 	}
 
+	private List<RoleDTO> getRolesByMappings(List<MappingDTO> mappings){
+		List<RoleDTO> userRoles = new ArrayList();
+		mappings.stream().forEach(mapping -> {
+			RoleDTO role = roleService.getRole(mapping.getRoleId());
+			userRoles.add(role);
+		});
+
+		return userRoles;
+	}
 }

@@ -60,7 +60,7 @@ public class UserDTO implements Serializable {
 	 */
 	private Date updateAt;
 
-	private List<MappingDTO> role;
+	private List<RoleDTO> role;
 
 	public UserDTO() {
 	}
