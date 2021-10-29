@@ -4,9 +4,11 @@ import com.example.demo.dto.*;
 import com.example.demo.services.*;
 import com.example.demo.util.Utils;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,21 +179,33 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
     	//mapping
 		List<MappingDTO> mappings = mappingService.getMappingsByUser(uid);
 		List<RoleDTO> roles = mappings.stream().map(mapping -> {
-			//根据角色id获取角色对象
 			return roleService.getRole(mapping.getRoleId());
 		}).collect(Collectors.toList());
 
-		//group
+		//user直接找user加入的group
 		List<GroupDTO> groups = groupService.getGroupsByUser(uid);
-		groups.stream().forEach(group -> {
-			group.getRealmRoles().forEach(realmRoleName -> {
-				RoleDTO conditions = new RoleDTO();
-				conditions.setName(realmRoleName);
-				List<RoleDTO> groupRole = roleService.getRole(conditions);
-				roles.addAll(groupRole);
+		if(Objects.nonNull(groups) ){
+			groups.stream().forEach(rl -> {
+				GroupRepresentation groupTmp = groupsResource.group(rl.getId()).toRepresentation();
+				List<RoleDTO> groupRoles = groupTmp.getRealmRoles().stream().map(roleName -> getRoleByName(roleName)).collect(Collectors.toList());
+				roles.addAll(groupRoles);
+			});
+		}
+
+		//role - group (通过role的id找到group的name)
+		List<RoleDTO> tmpRole = new ArrayList();
+		roles.stream().forEach(role -> {
+			//根据role的id去找组的name关联
+			GroupDTO condition = new GroupDTO();
+			condition.setName(role.getId());
+			List<GroupDTO> role_group = groupService.search(condition);
+			role_group.stream().forEach(rg -> {
+				List<RoleDTO> rs = rg.getRealmRoles().stream().map(roleId -> roleService.getRole(roleId)).collect(Collectors.toList());
+				tmpRole.addAll(rs);
 			});
 		});
 
+		roles.addAll(tmpRole);
 		return roles;
 	}
 
@@ -203,5 +217,17 @@ public class UserServiceImpl extends AdminServiceImpl implements UserService {
 		});
 
 		return userRoles;
+	}
+
+	private RoleDTO getRoleByName(String name){
+		RoleDTO roleDTO;
+		try {
+			RoleResource roleResource = rolesResource.get(name);
+			roleDTO = Utils.toRole(roleResource.toRepresentation());
+		} catch (Exception e) {
+			roleDTO = null;
+		}
+
+		return roleDTO;
 	}
 }
